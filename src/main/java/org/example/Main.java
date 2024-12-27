@@ -2,6 +2,8 @@ package org.example;
 import static spark.Spark.*;
 import com.google.gson.Gson;
 
+import java.util.Map;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -71,7 +73,7 @@ public class Main {
         get("/api/macchinette/cialde/:machineId", (req, res) -> {
             String machineId = req.params(":machineId");
             try {
-                return gson.toJson(dao.requestMachineInfoCialde(machineId));
+                return dao.requestMachineInfoCialde(machineId);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(new ErrorResponse(e.getMessage()));
@@ -82,7 +84,7 @@ public class Main {
         get("/api/macchinette/guasti/:machineId", (req, res) -> {
             String machineId = req.params(":machineId");
             try {
-                return gson.toJson(dao.requestMachineInfoGuasti(machineId));
+                return dao.requestMachineInfoGuasti(machineId);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(new ErrorResponse(e.getMessage()));
@@ -93,7 +95,7 @@ public class Main {
         get("/api/macchinette/cassa/:machineId", (req, res) -> {
             String machineId = req.params(":machineId");
             try {
-                return gson.toJson(dao.requestMachineInfoCassa(machineId));
+                return dao.requestMachineInfoCassa(machineId);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(new ErrorResponse(e.getMessage()));
@@ -104,12 +106,73 @@ public class Main {
         get("/api/macchinetta/dettagli/:machineId", (req, res) -> {
             String machineId = req.params(":machineId");
             try {
-                return gson.toJson(dao.getMachineDetailsById(machineId));
+                return dao.getMachineDetailsById(machineId);
             } catch (Exception e) {
                 res.status(500);
                 return gson.toJson(new ErrorResponse("Errore nel recupero dei dettagli della macchinetta", e.getMessage()));
             }
         });
+
+
+
+        post("/api/new/school", (req, res) -> {
+            System.out.println("Ricevuta richiesta POST per aggiungere una scuola");
+            try {
+                // Converte il corpo della richiesta JSON in una mappa
+                Map<String, Object> requestData = new Gson().fromJson(req.body(), Map.class);
+
+                // Recupera i singoli campi dalla mappa
+                String citta = (String) requestData.get("citta");
+                String nome = (String) requestData.get("nome");
+                String indirizzo = (String) requestData.get("indirizzo");
+
+                // Chiama il metodo DAO per aggiungere i dati
+                boolean success = dao.postSchoolData(citta, nome, indirizzo);
+
+                if (success) {
+                    res.status(200);
+                    return new Gson().toJson(Map.of("message", "Macchinetta aggiunta con successo"));
+                } else {
+                    res.status(400);
+                    return new Gson().toJson(new ErrorResponse("Errore durante l'aggiunta della macchinetta"));
+                }
+            } catch (Exception e) {
+                res.status(500);
+                return new Gson().toJson(new ErrorResponse("Errore interno del server: " + e.getMessage()));
+            }
+        });
+
+
+
+        post("/api/new/machine", (req, res) -> {
+            System.out.println("Ricevuta richiesta POST per aggiungere una macchinetta");
+            try {
+                // Converte il corpo della richiesta JSON in una mappa
+                Map<String, Object> requestData = new Gson().fromJson(req.body(), Map.class);
+
+                // Recupera i singoli campi dalla mappa e li converte in int
+                int piano = Integer.parseInt(requestData.get("piano").toString());
+                int school_id = Integer.parseInt(requestData.get("scuola").toString());
+
+                System.out.println("Piano ricevuto: " + piano);
+                System.out.println("School ID ricevuto: " + school_id);
+
+                // Chiama il metodo DAO per aggiungere i dati
+                boolean success = dao.postMachineData(piano,school_id);
+
+                if (success) {
+                    res.status(200);
+                    return new Gson().toJson(Map.of("message", "Macchinetta aggiunta con successo"));
+                } else {
+                    res.status(400);
+                    return new Gson().toJson(new ErrorResponse("Errore durante l'aggiunta della macchinetta"));
+                }
+            } catch (Exception e) {
+                res.status(500);
+                return new Gson().toJson(new ErrorResponse("Errore interno del server: " + e.getMessage()));
+            }
+        });
+
     }
 
     // Classe di risposta per gli errori

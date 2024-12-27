@@ -1,5 +1,6 @@
 package org.example;
 
+import com.google.gson.JsonObject;
 import org.eclipse.paho.client.mqttv3.*;
 import com.google.gson.Gson;
 import java.sql.*;
@@ -53,14 +54,21 @@ public class dao {
     // Funzione per recuperare tutte le città
     public String getAllCitiesWithSchools() {
         String sql = "SELECT DISTINCT citta FROM Scuole ORDER BY citta ASC";
-        List<String> citta= new ArrayList<>();
+        Gson gson = new Gson();
+        List<JsonObject> cittaList = new ArrayList<>();
+
         try (Statement stmt = dbConnection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()){ citta.add(rs.getString("citta")); }
-            Gson gson = new Gson();
-            // Costruisci il risultato JSON
-            String r=gson.toJson(citta);
-            System.out.println(r);
-            return r ;
+            while (rs.next()) {
+                // Creiamo un JsonObject per ogni città
+                JsonObject cityObj = new JsonObject();
+                cityObj.addProperty("citta", rs.getString("citta"));
+                cittaList.add(cityObj);
+            }
+
+            // Convertiamo la lista in una stringa JSON
+            String result = gson.toJson(cittaList);
+            System.out.println(result); // Debug: stampa il JSON
+            return result;
         } catch (SQLException e) {
             e.printStackTrace();
             return "{\"error\": \"Errore nel recupero delle città\"}";
@@ -73,11 +81,13 @@ public class dao {
 
         try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
             stmt.setString(1, city);  // Imposta il parametro della città
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+                    // Creiamo una mappa per rappresentare ogni scuola
                     Map<String, Object> school = new HashMap<>();
-                    school.put("id", rs.getInt("id"));
-                    school.put("nome", rs.getString("nome"));
+                    school.put("id", rs.getInt("id")); // ID della scuola
+                    school.put("nome", rs.getString("nome")); // Nome della scuola
                     schools.add(school);  // Aggiungi la scuola alla lista
                 }
             }
@@ -86,110 +96,384 @@ public class dao {
             return "{\"error\": \"Errore nel recupero delle scuole\"}";
         }
 
-        // Usa Gson per convertire la lista di scuole in formato JSON
+        // Serializziamo la lista di scuole in formato JSON
         Gson gson = new Gson();
-        String resultJson = gson.toJson(schools);  // Converti la lista in JSON
-        System.out.println(resultJson);  // Facoltativo: stampa il risultato per il debug
-        return resultJson;  // Restituisci il risultato JSON
+        String resultJson = gson.toJson(schools); // Converte la lista in JSON
+        System.out.println(resultJson);  // Facoltativo: stampa per debug
+        return resultJson;  // Restituisce il risultato JSON
     }
 
     // Funzione per recuperare il piano massimo di una scuola
     public String getMaxFloorBySchoolId(String schoolId) {
         String sql = "SELECT MAX(piano) AS maxFloor FROM macchinette WHERE id_scuola = ?";
-        List<Map<String, Object>> result = new ArrayList<>();
+
         try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
             stmt.setString(1, schoolId);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("maxFloor", rs.getInt("maxFloor"));
-                    result.add(map);
+                    // Recupera il valore del piano massimo
+                    Integer maxFloor = rs.getInt("maxFloor");
+                    if (rs.wasNull()) {
+                        maxFloor = null; // Gestisce i risultati NULL
+                    }
+
+                    // Usa Gson per serializzare il valore in JSON
+                    Gson gson = new Gson();
+                    return gson.toJson(maxFloor);
                 } else {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("maxFloor", null);
-                    result.add(map);
+                    // Nessun risultato trovato, restituisce null in JSON
+                    return "null";
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            // Restituisce un messaggio di errore in formato JSON
             return "{\"error\": \"Errore nel recupero del piano massimo\"}";
         }
-
-        Gson gson = new Gson();
-        return gson.toJson(result);  // Converti la lista in JSON
     }
+
+    public String getNextMachineId() {
+        String sql = "SELECT id FROM macchinette ORDER BY id ASC";
+
+        try (PreparedStatement stmt = dbConnection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            // Mantieni il prossimo ID atteso
+            int expectedId = 1;
+
+            // Scorri gli ID ordinati
+            while (rs.next()) {
+                int currentId = rs.getInt("id");
+
+                // Se c'è una lacuna nella sequenza, restituisci l'ID mancante
+                if (currentId != expectedId) {
+                    Gson gson = new Gson();
+                    return gson.toJson(expectedId);
+                }
+
+                // Aggiorna l'ID atteso
+                expectedId++;
+            }
+
+            // Se non ci sono lacune, restituisci il prossimo ID disponibile
+            Gson gson = new Gson();
+            System.out.println("Prossimo ID disponibile: " + gson.toJson(expectedId)); // Stampa il risultato
+            return gson.toJson(expectedId);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Restituisce un messaggio di errore in formato JSON
+            return "{\"error\": \"Errore nel calcolo del prossimo ID\"}";
+        }
+    }
+
+    public String getNextSchoolId() {
+        String sql = "SELECT id FROM scuole ORDER BY id ASC";
+
+        try (PreparedStatement stmt = dbConnection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            // Mantieni il prossimo ID atteso
+            int expectedId = 1;
+
+            // Scorri gli ID ordinati
+            while (rs.next()) {
+                int currentId = rs.getInt("id");
+
+                // Se c'è una lacuna nella sequenza, restituisci l'ID mancante
+                if (currentId != expectedId) {
+                    Gson gson = new Gson();
+                    return gson.toJson(expectedId);
+                }
+
+                // Aggiorna l'ID atteso
+                expectedId++;
+            }
+
+            // Se non ci sono lacune, restituisci il prossimo ID disponibile
+            Gson gson = new Gson();
+            return gson.toJson(expectedId);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Restituisce un messaggio di errore in formato JSON
+            return "{\"error\": \"Errore nel calcolo del prossimo ID\"}";
+        }
+    }
+
 
 
     public String getMachineIdsBySchoolIdAndFloor(String schoolId, String floor) {
         String sql = "SELECT id FROM macchinette WHERE id_scuola = ? AND piano = ?";
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Integer> machineIds = new ArrayList<>(); // Lista per memorizzare solo gli ID delle macchinette
+
         try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
             stmt.setString(1, schoolId);
             stmt.setString(2, floor);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Map<String, Object> machine = new HashMap<>();
-                    machine.put("id", rs.getInt("id"));
-                    result.add(machine);
+                    machineIds.add(rs.getInt("id")); // Aggiungi solo l'ID alla lista
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            // Restituisce un messaggio di errore in formato JSON
             return "{\"error\": \"Errore nel recupero degli ID delle macchinette\"}";
         }
 
+        // Usa Gson per convertire la lista di ID in JSON
         Gson gson = new Gson();
-        return gson.toJson(result);  // Converti la lista in JSON
+        return gson.toJson(machineIds); // Restituisce un array JSON
     }
+
+//funzione per aggiunta di una macchinetta
+public boolean postMachineData(int piano, int school_id) {
+    // Ottieni il prossimo ID disponibile
+    String nextIdJson = getNextMachineId();
+    Gson gson = new Gson();
+
+    try {
+        // Estrai il valore numerico dall'output JSON
+        Integer nextId = gson.fromJson(nextIdJson, Integer.class);
+
+        if (nextId == null) {
+            return false; // Impossibile calcolare il prossimo ID
+        }
+
+        // Query per l'inserimento della nuova macchinetta
+        String sql = "INSERT INTO macchinette (id, id_scuola, piano) VALUES (?, ?, ?)";
+
+        try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
+            // Imposta i parametri della query
+            stmt.setInt(1, nextId);
+            stmt.setInt(2, school_id);
+            stmt.setInt(3, piano);
+
+            // Esegui l'inserimento
+            int rowsInserted = stmt.executeUpdate();
+            System.out.println("Righe inserite: " + rowsInserted);
+            return rowsInserted > 0; // Restituisce true se l'inserimento è riuscito
+        }
+    } catch (SQLException e) {
+        System.err.println("Errore durante l'esecuzione della query SQL:");
+        e.printStackTrace();
+        return false; // Restituisce false in caso di errore
+    } catch (Exception e) {
+        // Log dettagliato per qualsiasi altra eccezione
+        System.err.println("Errore generale:");
+        e.printStackTrace();
+        return false;
+    }
+}
+
+    public boolean postSchoolData(String citta, String nome, String indirizzo ) {
+        // Ottieni il prossimo ID disponibile
+        String nextIdJson = getNextSchoolId();
+        Gson gson = new Gson();
+
+        try {
+            // Estrai il valore numerico dall'output JSON
+            Integer nextId = gson.fromJson(nextIdJson, Integer.class);
+
+            if (nextId == null) {
+                return false; // Impossibile calcolare il prossimo ID
+            }
+
+            // Query per l'inserimento della nuova macchinetta
+            String sql = "INSERT INTO scuole (id, indirizzo, nome, citta) VALUES (?, ?, ?, ?)";
+
+            try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
+                // Imposta i parametri della query
+                stmt.setInt(1, nextId);
+                stmt.setString(2, indirizzo);
+                stmt.setString(3, nome);
+                stmt.setString(4, citta);
+
+                // Esegui l'inserimento
+                int rowsInserted = stmt.executeUpdate();
+
+                return rowsInserted > 0; // Restituisce true se l'inserimento è riuscito
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Restituisce false in caso di errore
+        }
+    }
+
+
+
 
     // Funzione per richiedere informazioni cialde tramite MQTT
     public String requestMachineInfoCialde(String machineId) {
-        try {
-            MqttClient client = getMqttClient();
-            String message = "{\"id\": \"" + machineId + "\", \"richiesta\": \"cialde\"}";
-            client.publish("/info", new MqttMessage(message.getBytes()));
-            client.subscribe("/info/risposta/cialde/" + machineId);
+        String responseTopic = "/info/risposta/cialde/" + machineId;
+        String requestTopic = "/info";
+        final String[] receivedMessage = {null};
 
-            // Attendi la risposta
-            Thread.sleep(1000);  // Timeout in attesa di una risposta
-            return "{\"response\": \"Informazioni cialde ricevute\"}";
+        try {
+            // Ottieni il client MQTT esistente
+            MqttClient client = getMqttClient();
+
+            // Sottoscriviti al topic di risposta
+            client.subscribe(responseTopic);
+
+            // Pubblica il messaggio di richiesta
+            String requestMessage = String.format("{\"id\": \"%s\", \"richiesta\": \"cialde\"}", machineId);
+            client.publish(requestTopic, new MqttMessage(requestMessage.getBytes()));
+            System.out.println("Messaggio pubblicato: " + requestMessage);
+
+            // Attendi la risposta o timeout
+            synchronized (receivedMessage) {
+                client.setCallback(new MqttCallback() {
+                    @Override
+                    public void connectionLost(Throwable cause) {
+                        System.err.println("Connessione persa: " + cause.getMessage());
+                    }
+
+                    @Override
+                    public void messageArrived(String topic, MqttMessage message) throws Exception {
+                        if (topic.equals(responseTopic)) {
+                            synchronized (receivedMessage) {
+                                receivedMessage[0] = new String(message.getPayload());
+                                receivedMessage.notify(); // Notifica che il messaggio è arrivato
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void deliveryComplete(IMqttDeliveryToken token) {
+                        System.out.println("Messaggio pubblicato con successo!");
+                    }
+                });
+
+                receivedMessage.wait(5000); // Timeout di 1 secondo
+            }
+
+            // Controlla se è stato ricevuto un messaggio
+            if (receivedMessage[0] != null) {
+                return receivedMessage[0]; // Restituisci il messaggio ricevuto
+            } else {
+                return "{\"error\": \"Timeout - Nessuna risposta ricevuta\"}";
+            }
         } catch (MqttException | InterruptedException e) {
             e.printStackTrace();
             return "{\"error\": \"Errore nella richiesta di informazioni per le cialde\"}";
         }
     }
 
+
     // Funzione per richiedere informazioni guasti tramite MQTT
     public String requestMachineInfoGuasti(String machineId) {
-        try {
-            MqttClient client = getMqttClient();
-            String message = "{\"id\": \"" + machineId + "\", \"richiesta\": \"guasti\"}";
-            client.publish("/info", new MqttMessage(message.getBytes()));
-            client.subscribe("/info/risposta/guasti/" + machineId);
+        String responseTopic = "/info/risposta/guasti/" + machineId;
+        String requestTopic = "/info";
+        final String[] receivedMessage = {null};
 
-            // Attendi la risposta
-            Thread.sleep(1000);  // Timeout
-            return "{\"response\": \"Informazioni guasti ricevute\"}";
+        try {
+            // Ottieni il client MQTT esistente
+            MqttClient client = getMqttClient();
+
+            // Sottoscriviti al topic di risposta
+            client.subscribe(responseTopic);
+
+            // Pubblica il messaggio di richiesta
+            String requestMessage = String.format("{\"id\": \"%s\", \"richiesta\": \"guasti\"}", machineId);
+            client.publish(requestTopic, new MqttMessage(requestMessage.getBytes()));
+            System.out.println("Messaggio pubblicato: " + requestMessage);
+
+            // Attendi la risposta o timeout
+            synchronized (receivedMessage) {
+                client.setCallback(new MqttCallback() {
+                    @Override
+                    public void connectionLost(Throwable cause) {
+                        System.err.println("Connessione persa: " + cause.getMessage());
+                    }
+
+                    @Override
+                    public void messageArrived(String topic, MqttMessage message) throws Exception {
+                        if (topic.equals(responseTopic)) {
+                            synchronized (receivedMessage) {
+                                receivedMessage[0] = new String(message.getPayload());
+                                receivedMessage.notify(); // Notifica che il messaggio è arrivato
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void deliveryComplete(IMqttDeliveryToken token) {
+                        System.out.println("Messaggio pubblicato con successo!");
+                    }
+                });
+
+                receivedMessage.wait(5000); // Timeout di 5 secondi
+            }
+
+            // Controlla se è stato ricevuto un messaggio
+            if (receivedMessage[0] != null) {
+                return receivedMessage[0]; // Restituisci il messaggio ricevuto
+            } else {
+                return "{\"error\": \"Timeout - Nessuna risposta ricevuta\"}";
+            }
         } catch (MqttException | InterruptedException e) {
             e.printStackTrace();
             return "{\"error\": \"Errore nella richiesta di informazioni per i guasti\"}";
         }
     }
 
-    // Funzione per richiedere informazioni cassa tramite MQTT
-    public String requestMachineInfoCassa(String machineId) {
-        try {
-            MqttClient client = getMqttClient();
-            String message = "{\"id\": \"" + machineId + "\", \"richiesta\": \"cassa\"}";
-            client.publish("/info", new MqttMessage(message.getBytes()));
-            client.subscribe("/info/risposta/cassa/" + machineId);
 
-            // Attendi la risposta
-            Thread.sleep(1000);  // Timeout
-            return "{\"response\": \"Informazioni cassa ricevute\"}";
+    public String requestMachineInfoCassa(String machineId) {
+        String responseTopic = "/info/risposta/cassa/" + machineId;
+        String requestTopic = "/info";
+        final String[] receivedMessage = {null};
+
+        try {
+            // Ottieni il client MQTT esistente
+            MqttClient client = getMqttClient();
+
+            // Sottoscriviti al topic di risposta
+            client.subscribe(responseTopic);
+
+            // Pubblica il messaggio di richiesta
+            String requestMessage = String.format("{\"id\": \"%s\", \"richiesta\": \"cassa\"}", machineId);
+            client.publish(requestTopic, new MqttMessage(requestMessage.getBytes()));
+            System.out.println("Messaggio pubblicato: " + requestMessage);
+
+            // Attendi la risposta o timeout
+            synchronized (receivedMessage) {
+                client.setCallback(new MqttCallback() {
+                    @Override
+                    public void connectionLost(Throwable cause) {
+                        System.err.println("Connessione persa: " + cause.getMessage());
+                    }
+
+                    @Override
+                    public void messageArrived(String topic, MqttMessage message) throws Exception {
+                        if (topic.equals(responseTopic)) {
+                            synchronized (receivedMessage) {
+                                receivedMessage[0] = new String(message.getPayload());
+                                receivedMessage.notify(); // Notifica che il messaggio è arrivato
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void deliveryComplete(IMqttDeliveryToken token) {
+                        System.out.println("Messaggio pubblicato con successo!");
+                    }
+                });
+
+                receivedMessage.wait(5000); // Timeout di 5 secondi
+            }
+
+            // Controlla se è stato ricevuto un messaggio
+            if (receivedMessage[0] != null) {
+                return receivedMessage[0]; // Restituisci il messaggio ricevuto
+            } else {
+                return "{\"error\": \"Timeout - Nessuna risposta ricevuta\"}";
+            }
         } catch (MqttException | InterruptedException e) {
             e.printStackTrace();
-            return "{\"error\": \"Errore nella richiesta di informazioni per la cassa\"}";
+            return "{\"error\": \"Errore nella richiesta di informazioni perla cassa\"}";
         }
     }
 
@@ -209,21 +493,24 @@ public class dao {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     // Recupera i dettagli della macchinetta
-                    int id = rs.getInt("machineId");
-                    int floor = rs.getInt("floor");
-                    String schoolName = rs.getString("schoolName");
-                    String city = rs.getString("city");
+                    Map<String, Object> details = new HashMap<>();
+                    details.put("machineId", rs.getInt("machineId"));
+                    details.put("floor", rs.getInt("floor"));
+                    details.put("schoolName", rs.getString("schoolName"));
+                    details.put("city", rs.getString("city"));
 
-                    // Crea una stringa JSON per i dettagli della macchinetta
-                    return String.format("{\"machineId\": %d, \"floor\": %d, \"schoolName\": \"%s\", \"city\": \"%s\"}",
-                            id, floor, schoolName, city);
+                    // Usa Gson per convertire i dettagli in JSON
+                    Gson gson = new Gson();
+                    System.out.println(details);
+                    return gson.toJson(details);
                 } else {
                     // Se non si trova la macchinetta, restituisce un messaggio di errore
-                    return "{\"error\": \"Macchinetta con ID " + machineId + " non trovata.\"}";
+                    return String.format("{\"error\": \"Macchinetta con ID %s non trovata.\"}", machineId);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            // Restituisce un messaggio di errore in formato JSON
             return "{\"error\": \"Errore nel recupero dei dettagli della macchinetta\"}";
         }
     }

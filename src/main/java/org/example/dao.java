@@ -268,6 +268,52 @@ public boolean postMachineData(int piano, int school_id) {
     }
 }
 
+//elimina macchinetta dal db
+public boolean deleteMachineById(int machineId) {
+    // SQL per eliminare i ricavi associati alla macchinetta
+    String deleteRevenuesSql = "DELETE FROM ricavi WHERE id_macchinetta = ?";
+    // SQL per eliminare la macchinetta
+    String deleteMachineSql = "DELETE FROM macchinette WHERE id = ?";
+
+    try {
+        // Disabilita l'autocommit per eseguire la transazione
+        dbConnection.setAutoCommit(false);
+
+        // Elimina i ricavi associati
+        try (PreparedStatement stmtRevenues = dbConnection.prepareStatement(deleteRevenuesSql)) {
+            stmtRevenues.setInt(1, machineId);
+            stmtRevenues.executeUpdate();
+        }
+
+        // Elimina la macchinetta
+        try (PreparedStatement stmtMachine = dbConnection.prepareStatement(deleteMachineSql)) {
+            stmtMachine.setInt(1, machineId);
+            int rowsDeleted = stmtMachine.executeUpdate();
+
+            // Conferma la transazione se l'eliminazione è riuscita
+            dbConnection.commit();
+            return rowsDeleted > 0; // True se la macchinetta è stata eliminata
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        try {
+            // Rollback della transazione in caso di errore
+            dbConnection.rollback();
+        } catch (SQLException rollbackEx) {
+            rollbackEx.printStackTrace();
+        }
+        return false;
+    } finally {
+        try {
+            // Ripristina l'autocommit
+            dbConnection.setAutoCommit(true);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+
     public boolean postSchoolData(String citta, String nome, String indirizzo ) {
         // Ottieni il prossimo ID disponibile
         String nextIdJson = getNextSchoolId();

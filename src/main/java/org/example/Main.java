@@ -114,6 +114,34 @@ public class Main {
         });
 
 
+        delete("/api/delete/:machineId",(req,res)->{
+            System.out.println("Ricevuta richiesta DELETE per eliminare una macchinetta");
+            String machineId = req.params(":machineId");
+            try {
+                // Converte il corpo della richiesta JSON in una mappa
+                Map<String, Object> requestData = new Gson().fromJson(req.body(), Map.class);
+
+                // Recupera i singoli campi dalla mappa
+                String citta = (String) requestData.get("citta");
+                String nome = (String) requestData.get("nome");
+                String indirizzo = (String) requestData.get("indirizzo");
+
+                // Chiama il metodo DAO per aggiungere i dati
+                boolean success = dao.postSchoolData(citta, nome, indirizzo);
+
+                if (success) {
+                    res.status(200);
+                    return new Gson().toJson(Map.of("message", "Macchinetta aggiunta con successo"));
+                } else {
+                    res.status(400);
+                    return new Gson().toJson(new ErrorResponse("Errore durante l'aggiunta della macchinetta"));
+                }
+            } catch (Exception e) {
+                res.status(500);
+                return new Gson().toJson(new ErrorResponse("Errore interno del server: " + e.getMessage()));
+            }
+        });
+
 
         post("/api/new/school", (req, res) -> {
             System.out.println("Ricevuta richiesta POST per aggiungere una scuola");

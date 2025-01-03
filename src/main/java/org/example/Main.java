@@ -116,25 +116,17 @@ public class Main {
 
         delete("/api/delete/:machineId",(req,res)->{
             System.out.println("Ricevuta richiesta DELETE per eliminare una macchinetta");
-            String machineId = req.params(":machineId");
+            int machineId = Integer.parseInt(req.params(":machineId"));
             try {
-                // Converte il corpo della richiesta JSON in una mappa
-                Map<String, Object> requestData = new Gson().fromJson(req.body(), Map.class);
-
-                // Recupera i singoli campi dalla mappa
-                String citta = (String) requestData.get("citta");
-                String nome = (String) requestData.get("nome");
-                String indirizzo = (String) requestData.get("indirizzo");
-
-                // Chiama il metodo DAO per aggiungere i dati
-                boolean success = dao.postSchoolData(citta, nome, indirizzo);
+                // Chiama il metodo DAO per eliminare macchinetta
+                boolean success = dao.deleteMachineById(machineId);
 
                 if (success) {
                     res.status(200);
-                    return new Gson().toJson(Map.of("message", "Macchinetta aggiunta con successo"));
+                    return new Gson().toJson(Map.of("message", "Macchinetta eliminata con successo"));
                 } else {
                     res.status(400);
-                    return new Gson().toJson(new ErrorResponse("Errore durante l'aggiunta della macchinetta"));
+                    return new Gson().toJson(new ErrorResponse("Errore durante l'eliminazione della macchinetta"));
                 }
             } catch (Exception e) {
                 res.status(500);

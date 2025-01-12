@@ -1,29 +1,41 @@
-package org.example;
+package org.uniupo.it;
 import static spark.Spark.*;
+import static spark.debug.DebugScreen.*;
+
 import com.google.gson.Gson;
+import org.uniupo.it.istituto.DaoIstitutoImpl;
+import org.uniupo.it.istituto.IstitutoController;
+import org.uniupo.it.util.Path;
 
-import java.util.Map;
+public class Application {
 
-public class Main {
+    public static DaoIstitutoImpl daoIstituto;
+    public static Gson gson;
     public static void main(String[] args) {
 
-        dao dao = new dao();
-        // Port del server
-        port(3001);
-
-        // Gestione statici (cartella client)
-        staticFiles.location("/client");
-
-        // Crea un'istanza di Gson per gestire la serializzazione/deserializzazione JSON
-        Gson gson = new Gson();
+        daoIstituto = new DaoIstitutoImpl();
+        gson = new Gson();
+        port(4567);
+        enableDebugScreen();
 
         // Middlewares
         before((req, res) -> {
             System.out.println("Richiesta ricevuta: " + req.requestMethod() + " " + req.url());
         });
 
+        path(Path.Web.IstitutiBasePath, () -> {
+            get("", IstitutoController.getIstituti);
+            get(Path.Web.GET_SCHOOL_BY_ID, IstitutoController.getIstitutoById);
+            post("", IstitutoController.addIstituto);
+        });
 
 
+        notFound((req, res) -> {
+            res.status(404);
+            return "Pagina non trovata";
+        });
+
+/**
         // Endpoint per ottenere tutte le scuole in città
         get("/api/scuole/citta", (req, res) -> {
             System.out.println("jjjjjjjj");
@@ -34,6 +46,7 @@ public class Main {
                 return gson.toJson(new ErrorResponse(e.getMessage()));
             }
         });
+
 
         // Endpoint per ottenere le scuole in una città specifica
         get("/api/scuole/:city", (req, res) -> {
@@ -192,7 +205,7 @@ public class Main {
                 return new Gson().toJson(new ErrorResponse("Errore interno del server: " + e.getMessage()));
             }
         });
-
+    */
     }
 
     // Classe di risposta per gli errori

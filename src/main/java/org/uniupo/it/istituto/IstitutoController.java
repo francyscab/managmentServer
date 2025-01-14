@@ -1,6 +1,9 @@
 package org.uniupo.it.istituto;
 
 import com.google.gson.Gson;
+import org.uniupo.it.Application;
+import org.uniupo.it.util.ErrorResponse;
+import org.uniupo.it.util.SuccessResponse;
 import spark.Route;
 
 import java.net.URLDecoder;
@@ -14,6 +17,10 @@ public class IstitutoController {
     public static Route getIstituti = (req, res) -> {
         res.type("application/json");
         List<Istituto> istituti = daoIstituto.getAllIstituti();
+        if (istituti.isEmpty()) {
+            res.status(404);
+            return "Nessun istituto trovato";
+        }
         return gson.toJson(istituti);
     };
 
@@ -23,19 +30,41 @@ public class IstitutoController {
         istituto.setNome(req.queryParams("nome"));
         istituto.setIndirizzo(req.queryParams("indirizzo"));
         istituto.setCitta(req.queryParams("citta"));
-        daoIstituto.addIstituto(istituto);
-        res.status(200);
+        try {
+            daoIstituto.addIstituto(istituto);
+        }catch (RuntimeException e){
+            res.status(500);
+            return "Errore nell'aggiunta dell'istituto";
+        }
         return "Istituto aggiunto";
     };
 
     public static Route getIstitutoById = (req, res) -> {
         res.type("application/json");
         int id = Integer.parseInt(req.params(":id"));
-        Istituto istituto = daoIstituto.getIstitutoById(id);
-        if (istituto == null) {
+        try {
+            Istituto istituto = daoIstituto.getIstitutoById(id);
+            return gson.toJson(istituto);
+        } catch (IllegalStateException e) {
             res.status(404);
-            return "Istituto non trovato";
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         }
-        return gson.toJson(istituto);
+    };
+
+    public static Route deleteIstituto = (req, res) -> {
+        res.type("application/json");
+        int id = Integer.parseInt(req.params(":id"));
+
+        try {
+            daoIstituto.deleteIstituto(id);
+            res.status(200);
+            return gson.toJson(new SuccessResponse("Istituto eliminato con successo"));
+        } catch (IllegalStateException e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(new ErrorResponse("Errore interno del server"));
+        }
     };
 }

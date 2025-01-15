@@ -12,7 +12,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
     public List<Istituto> getAllIstituti() throws RuntimeException {
         List<Istituto> istituti = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(SQLQuery.Istituto.GET_ALL_ISTITUTI)) {
+        try (Connection conn = DatabaseConnection.getConnection(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(SQLQuery.Istituto.GET_ALL_ISTITUTI)) {
 
             while (rs.next()) {
                 Istituto istituto = new Istituto();
@@ -37,7 +37,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
         PreparedStatement psDelete = null;
 
         try {
-            conn = DatabaseConnection.getInstance().getConnection();
+            conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
             // Prima controlliamo se ci sono macchinette associate
@@ -90,7 +90,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
-            conn = DatabaseConnection.getInstance().getConnection();
+            conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             ps = conn.prepareStatement(SQLQuery.Istituto.ADD_ISTITUTO);
 
@@ -127,7 +127,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
 
     @Override
     public Istituto getIstitutoById(int id) throws IllegalStateException {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Istituto.GET_ISTITUTO_BY_ID)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();

@@ -14,7 +14,7 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
     public List<Macchinetta> getAllMacchinette() {
         List<Macchinetta> macchinette = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQLQuery.Macchinetta.GET_ALL_MACCHINETTE)) {
 
@@ -32,7 +32,7 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
     public List<Macchinetta> getMacchinetteByIstituto(int idIstituto) {
         List<Macchinetta> macchinette = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.GET_MACCHINETTE_BY_ISTITUTO)) {
 
             ps.setInt(1, idIstituto);
@@ -50,16 +50,18 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
 
     @Override
     public Macchinetta getMacchinettaById(String id) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.GET_MACCHINETTA_BY_ID)) {
 
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
+            ps.setString(1, id);  // Prima impostiamo il parametro
 
-            if (rs.next()) {
-                return extractMacchinettaFromResultSet(rs);
+            try (ResultSet rs = ps.executeQuery()) {  // Poi eseguiamo la query
+                if (rs.next()) {
+                    return extractMacchinettaFromResultSet(rs);
+                }
             }
         } catch (SQLException e) {
+            System.out.println("Errore nel recupero della macchinetta: " + e.getMessage());
             throw new RuntimeException(e);
         }
         return null;
@@ -67,7 +69,7 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
 
     @Override
     public void addMacchinetta(Macchinetta macchinetta) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.ADD_MACCHINETTA)) {
 
             ps.setString(1, macchinetta.getId_macchinetta());
@@ -82,7 +84,7 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
 
     @Override
     public void deleteMacchinetta(String id) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.DELETE_MACCHINETTA)) {
 
             ps.setString(1, id);

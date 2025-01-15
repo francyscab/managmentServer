@@ -15,12 +15,13 @@ public class RicavoController {
 
     public static Route getAllRicavi = (req, res) -> {
         res.type("application/json");
-        List<Ricavo> ricavi = daoRicavo.getAllRicavi();
-        if (ricavi.isEmpty()) {
-            res.status(404);
-            return gson.toJson(new ErrorResponse("Nessun ricavo trovato"));
+        try {
+            List<Ricavo> ricavi = daoRicavo.getAllRicavi();
+            return gson.toJson(ricavi);
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(new ErrorResponse("Errore interno del server"));
         }
-        return gson.toJson(ricavi);
     };
 
     public static Route getRicaviByMacchinetta = (req, res) -> {

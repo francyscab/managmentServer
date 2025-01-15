@@ -14,7 +14,7 @@ public class DaoRicavoImpl implements DaoRicavo {
     public List<Ricavo> getAllRicavi() {
         List<Ricavo> ricavi = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQLQuery.Ricavo.GET_ALL_RICAVI)) {
 
@@ -32,7 +32,7 @@ public class DaoRicavoImpl implements DaoRicavo {
     public List<Ricavo> getRicaviByMacchinetta(String id_macchinetta) {
         List<Ricavo> ricavi = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.GET_RICAVI_BY_MACCHINETTA)) {
 
             ps.setString(1, id_macchinetta);
@@ -52,7 +52,7 @@ public class DaoRicavoImpl implements DaoRicavo {
     public List<Ricavo> getRicaviByIstituto(int id_istituto) {
         List<Ricavo> ricavi = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.GET_RICAVI_BY_ISTITUTO)) {
 
             ps.setInt(1, id_istituto);
@@ -70,7 +70,7 @@ public class DaoRicavoImpl implements DaoRicavo {
 
     @Override
     public void addRicavo(Ricavo ricavo) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.ADD_RICAVO)) {
 
             ps.setString(1, ricavo.getId_macchinetta());
@@ -85,7 +85,7 @@ public class DaoRicavoImpl implements DaoRicavo {
 
     @Override
     public double getTotaleRicavi() {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQLQuery.Ricavo.GET_TOTALE_RICAVI)) {
 
@@ -100,7 +100,7 @@ public class DaoRicavoImpl implements DaoRicavo {
 
     @Override
     public double getTotaleRicaviByMacchinetta(String id_macchinetta) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.GET_TOTALE_RICAVI_BY_MACCHINETTA)) {
 
             ps.setString(1, id_macchinetta);
@@ -117,7 +117,7 @@ public class DaoRicavoImpl implements DaoRicavo {
 
     @Override
     public double getTotaleRicaviByIstituto(int id_istituto) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.GET_TOTALE_RICAVI_BY_ISTITUTO)) {
 
             ps.setInt(1, id_istituto);

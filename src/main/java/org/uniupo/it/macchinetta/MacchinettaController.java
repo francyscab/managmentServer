@@ -27,10 +27,6 @@ public class MacchinettaController {
         res.type("application/json");
         int idIstituto = Integer.parseInt(req.params(":id"));
         List<Macchinetta> macchinette = daoMacchinetta.getMacchinetteByIstituto(idIstituto);
-        if (macchinette.isEmpty()) {
-            res.status(404);
-            return gson.toJson(new ErrorResponse("Nessuna macchinetta trovata per questo istituto"));
-        }
         return gson.toJson(macchinette);
     };
 
@@ -67,6 +63,7 @@ public class MacchinettaController {
             return gson.toJson(new ErrorResponse("ID istituto non valido"));
         } catch (Exception e) {
             res.status(500);
+            System.out.println(e.getMessage());
             return gson.toJson(new ErrorResponse("Errore interno del server"));
         }
     };

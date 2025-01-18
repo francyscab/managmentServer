@@ -6,7 +6,6 @@ import org.uniupo.it.util.SQLQuery;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
 public class DaoRicavoImpl implements DaoRicavo {
 

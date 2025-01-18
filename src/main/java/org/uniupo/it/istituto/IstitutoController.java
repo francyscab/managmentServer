@@ -26,14 +26,12 @@ public class IstitutoController {
 
     public static Route addIstituto = (req, res) -> {
         res.type("application/json");
-        Istituto istituto = new Istituto();
-        istituto.setNome(req.queryParams("nome"));
-        istituto.setIndirizzo(req.queryParams("indirizzo"));
-        istituto.setCitta(req.queryParams("citta"));
+        Istituto istituto = gson.fromJson(req.body(), Istituto.class);
         try {
             daoIstituto.addIstituto(istituto);
         }catch (RuntimeException e){
             res.status(500);
+            System.out.println(e.getMessage());
             return "Errore nell'aggiunta dell'istituto";
         }
         return "Istituto aggiunto";

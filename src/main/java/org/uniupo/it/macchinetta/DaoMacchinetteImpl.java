@@ -1,6 +1,7 @@
 // DaoMacchinetteImpl.java
 package org.uniupo.it.macchinetta;
 
+import org.eclipse.jetty.util.log.Log;
 import org.uniupo.it.DatabaseConnection;
 import org.uniupo.it.util.SQLQuery;
 
@@ -94,6 +95,7 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
                 throw new IllegalStateException("Macchinetta non trovata");
             }
         } catch (SQLException e) {
+            System.out.println("Errore nell'eliminazione della macchinetta: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

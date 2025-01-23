@@ -24,6 +24,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
                 istituti.add(istituto);
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
 

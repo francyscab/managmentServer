@@ -17,10 +17,7 @@ public class IstitutoController {
     public static Route getIstituti = (req, res) -> {
         res.type("application/json");
         List<Istituto> istituti = daoIstituto.getAllIstituti();
-        if (istituti.isEmpty()) {
-            res.status(404);
-            return "Nessun istituto trovato";
-        }
+
         return gson.toJson(istituti);
     };
 

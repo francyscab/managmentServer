@@ -84,19 +84,27 @@ public class Application {
             get(Path.Web.GET_TOTALE_RICAVI_BY_MACCHINETTA, RicavoController.getTotaleRicaviByMacchinetta);
             get(Path.Web.GET_TOTALE_RICAVI_BY_ISTITUTO, RicavoController.getTotaleRicaviByIstituto);
 
-            // Middleware per aggiunta ricavo
-            before("/add", (request, response) -> {
-                if ("POST".equalsIgnoreCase(request.requestMethod())) {
+            before("/svuota", (request, response) -> {
+                if ("GET".equalsIgnoreCase(request.requestMethod())) {
                     AuthMiddleware.requireAdmin.handle(request, response);
                 }
             });
 
-            post(Path.Web.ADD_RICAVO, RicavoController.addRicavo);
+            get(Path.Web.SVUOTA_RICAVI, RicavoController.svuotaRicavi);
         });
 
         path(Path.Web.ManutenzioniBasePath, () -> {
-            get(Path.Web.RICHIEDI_MANUTENZIONE, ManutenzioneController.richiediManutenzione);
+            before("", (request, response) -> {
+                if ("POST".equalsIgnoreCase(request.requestMethod())) {
+                    AuthMiddleware.requireAdmin.handle(request, response);
+                }
+            });
+            post(Path.Web.RICHIEDI_MANUTENZIONE, ManutenzioneController.richiediManutenzione);
         });
+
+        /*path(Path.Web.ScorteBasePath, () -> {
+            get(Path.Web.GET_SCORTE_MACCHINETTA, ScorteController.getScorteByMacchinetta);
+        });*/
 
         notFound((req, res) -> {
             res.status(404);

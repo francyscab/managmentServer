@@ -27,10 +27,13 @@ public class Path {
         public static final String GET_TOTALE_RICAVI_BY_MACCHINETTA = "/totale/macchinetta/:id";
         public static final String GET_TOTALE_RICAVI_BY_ISTITUTO = "/totale/istituto/:id";
         public static final String ADD_RICAVO = "/add";
+        public static final String SVUOTA_RICAVI = "/svuota/:idIsituto/:idMacchinetta";
 
         // PATH PER LE MANUTENZIONI
         public static final String ManutenzioniBasePath = basePath + "/manutenzioni";
         public static final String RICHIEDI_MANUTENZIONE = "/richiesta/:idIstituto/:idMacchinetta";
+
+        // PATH PER LE SCORTE
 
     }
 }

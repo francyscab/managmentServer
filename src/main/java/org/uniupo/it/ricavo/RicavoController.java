@@ -1,5 +1,7 @@
 package org.uniupo.it.ricavo;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.uniupo.it.mqtt.MQTTConnection;
 import org.uniupo.it.util.ErrorResponse;
 import org.uniupo.it.util.SuccessResponse;
 import spark.Route;
@@ -103,4 +105,21 @@ public class RicavoController {
         }
     };
 
+    public static Route svuotaRicavi = (req, res) -> {
+        res.type("application/json");
+        MQTTConnection mqttConnection = MQTTConnection.getInstance();
+
+        String idIstituto = req.params("idIstituto");
+        String idMacchinetta = req.params("idMacchinetta");
+
+        String topic = "/macchinetta/ricavo/" + idIstituto + "/" + idMacchinetta;
+
+        try{
+            mqttConnection.publish(topic, "Preleva ricavo");
+            return gson.toJson(new SuccessResponse("Richiesta inviata"));
+        } catch (MqttException e) {
+            res.status(500);
+            return gson.toJson(new ErrorResponse("Errore interno del server"));
+        }
+    };
 }

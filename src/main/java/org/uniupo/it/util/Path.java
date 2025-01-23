@@ -15,7 +15,7 @@ public class Path {
 
         //PATH PER LE MACCHINETTE
         public static final String MacchinetteBasePath = basePath + "/macchinette";
-        public static final String GET_MACCHINETTA_BY_ID = "/:id";
+        public static final String GET_MACCHINETTA_BY_ID = "/dettaglio/:idIstituto/:id";
         public static final String GET_MACCHINETTE_BY_ISTITUTO = "/:id/macchinette";
         public static final String ADD_MACCHINETTA_TO_ISTITUTO = "/:id/macchinette";
 
@@ -27,6 +27,10 @@ public class Path {
         public static final String GET_TOTALE_RICAVI_BY_MACCHINETTA = "/totale/macchinetta/:id";
         public static final String GET_TOTALE_RICAVI_BY_ISTITUTO = "/totale/istituto/:id";
         public static final String ADD_RICAVO = "/add";
+
+        // PATH PER LE MANUTENZIONI
+        public static final String ManutenzioniBasePath = basePath + "/manutenzioni";
+        public static final String RICHIEDI_MANUTENZIONE = "/richiesta/:idIstituto/:idMacchinetta";
 
     }
 }

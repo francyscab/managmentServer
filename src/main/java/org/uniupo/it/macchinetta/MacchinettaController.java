@@ -5,6 +5,7 @@ import org.uniupo.it.util.ErrorResponse;
 import org.uniupo.it.util.SuccessResponse;
 import spark.Route;
 
+import java.nio.file.FileSystemNotFoundException;
 import java.util.List;
 
 import static org.uniupo.it.Application.gson;
@@ -33,7 +34,10 @@ public class MacchinettaController {
     public static Route getMacchinettaById = (req, res) -> {
         res.type("application/json");
         String id = req.params(":id");
-        Macchinetta macchinetta = daoMacchinetta.getMacchinettaById(id);
+        int idIstituto = Integer.parseInt(req.params(":idIstituto"));
+
+        Macchinetta macchinetta = daoMacchinetta.getMacchinettaById(id, idIstituto);
+
         if (macchinetta == null) {
             res.status(404);
             return gson.toJson(new ErrorResponse("Macchinetta non trovata"));

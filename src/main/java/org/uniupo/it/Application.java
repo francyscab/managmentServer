@@ -13,7 +13,6 @@ import static spark.Spark.*;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
 public class Application {
-
     private static final Dotenv dotenv = Dotenv.configure().load();
     public static DaoIstitutoImpl daoIstituto;
     public static Gson gson;
@@ -92,6 +91,11 @@ public class Application {
             });
 
             post(Path.Web.ADD_RICAVO, RicavoController.addRicavo);
+        });
+
+        path(Path.Web.ManutenzioniBasePath, () -> {
+            get(Path.Web.RICHIEDI_MANUTENZIONE, ManutenzioneController.richiediManutenzione);
+
         });
 
         notFound((req, res) -> {

@@ -5,5 +5,4 @@ public enum StatusMacchinetta {
     NECESSITA_MANUTENZIONE,
     NECESSITA_REFILL,
     NECESSITA_SVUOTAMENTO_CASSA
-
 }

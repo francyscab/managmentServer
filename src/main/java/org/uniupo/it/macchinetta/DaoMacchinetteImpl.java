@@ -50,11 +50,12 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
     }
 
     @Override
-    public Macchinetta getMacchinettaById(String id) {
+    public Macchinetta getMacchinettaById(String id, int idIstituto) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.GET_MACCHINETTA_BY_ID)) {
 
             ps.setString(1, id);  // Prima impostiamo il parametro
+            ps.setInt(2, idIstituto);
 
             try (ResultSet rs = ps.executeQuery()) {  // Poi eseguiamo la query
                 if (rs.next()) {
@@ -96,6 +97,25 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
             }
         } catch (SQLException e) {
             System.out.println("Errore nell'eliminazione della macchinetta: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateMacchinaStatus(String id_macchinetta, int id_istituto, StatusMacchinetta status) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.UPDATE_MACCHINA_STATUS)) {
+
+            ps.setString(1, status.name());
+            ps.setString(2, id_macchinetta);
+            ps.setInt(3, id_istituto);
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new IllegalStateException("Macchinetta non trovata");
+            }
+        } catch (SQLException e) {
+            System.out.println("Errore nell'aggiornamento dello stato della macchinetta: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

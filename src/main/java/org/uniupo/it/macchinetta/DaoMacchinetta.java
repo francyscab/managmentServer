@@ -5,7 +5,8 @@ import java.util.List;
 public interface DaoMacchinetta {
     List<Macchinetta> getAllMacchinette();
     List<Macchinetta> getMacchinetteByIstituto(int idIstituto);
-    Macchinetta getMacchinettaById(String id);
+    Macchinetta getMacchinettaById(String id, int idIstituto);
     void addMacchinetta(Macchinetta macchinetta);
     void deleteMacchinetta(String id);
+    void updateMacchinaStatus(String istituto, int id_macchinetta, StatusMacchinetta statusMacchinetta);
 }

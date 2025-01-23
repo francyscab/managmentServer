@@ -5,6 +5,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.uniupo.it.istituto.DaoIstitutoImpl;
 import org.uniupo.it.istituto.IstitutoController;
 import org.uniupo.it.macchinetta.MacchinettaController;
+import org.uniupo.it.mqtt.MQTTConnection;
 import org.uniupo.it.ricavo.RicavoController;
 import org.uniupo.it.util.*;
 
@@ -115,6 +116,11 @@ public class Application {
             response.body(gson.toJson(new ErrorResponse("Errore interno del server")));
         });
 
+        try {
+            MQTTConnection.getInstance().publish("/samello/pisello", "Ciao");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }

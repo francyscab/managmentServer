@@ -1,5 +1,6 @@
 package org.uniupo.it.manutenzione;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.uniupo.it.mqtt.MQTTConnection;
 import spark.Route;
 
@@ -11,8 +12,14 @@ public class ManutenzioneController {
 
         String topic = "manutenzione/" + idIstituto + "/" + idMacchinetta;
 
-        mqttConnection.publish(topic, "Richiesta Manutenzione");
-
-        return null;
+        try {
+            mqttConnection.publish(topic, "Richiesta Manutenzione");
+            System.out.println(topic);
+            return "Richiesta di manutenzione inviata";
+        }catch (MqttException e){
+            res.status(500);
+            System.out.println(e.getMessage());
+            return "Errore interno del server";
+        }
     };
 }

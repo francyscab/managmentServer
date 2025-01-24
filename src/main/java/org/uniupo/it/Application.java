@@ -131,6 +131,7 @@ public class Application {
         try {
             MQTTConnection.getInstance().publish("/samello/pisello", "Ciao");
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
 

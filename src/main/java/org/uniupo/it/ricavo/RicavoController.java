@@ -29,7 +29,8 @@ public class RicavoController {
     public static Route getRicaviByMacchinetta = (req, res) -> {
         res.type("application/json");
         String idMacchinetta = req.params(":id");
-        List<Ricavo> ricavi = daoRicavo.getRicaviByMacchinetta(idMacchinetta);
+        int idIstituto = Integer.parseInt(req.params(":idIstituto"));
+        List<Ricavo> ricavi = daoRicavo.getRicaviByMacchinetta(idMacchinetta, idIstituto);
         if (ricavi.isEmpty()) {
             res.status(404);
             return gson.toJson(new ErrorResponse("Nessun ricavo trovato per questa macchinetta"));
@@ -53,7 +54,7 @@ public class RicavoController {
         }
     };
 
-    public static Route addRicavo = (req, res) -> {
+    /**public static Route addRicavo = (req, res) -> {
         res.type("application/json");
         try {
             String idMacchinetta = req.queryParams("id_macchinetta");
@@ -78,7 +79,7 @@ public class RicavoController {
             System.out.println(e.getMessage());
             return gson.toJson(new ErrorResponse("Errore interno del server"));
         }
-    };
+    };*/
 
     public static Route getTotaleRicavi = (req, res) -> {
         res.type("application/json");
@@ -89,7 +90,8 @@ public class RicavoController {
     public static Route getTotaleRicaviByMacchinetta = (req, res) -> {
         res.type("application/json");
         String idMacchinetta = req.params(":id");
-        double totale = daoRicavo.getTotaleRicaviByMacchinetta(idMacchinetta);
+        int idIstituto = Integer.parseInt(req.params(":idIstituto"));
+        double totale = daoRicavo.getTotaleRicaviByMacchinetta(idMacchinetta, idIstituto);
         return gson.toJson(totale);
     };
 

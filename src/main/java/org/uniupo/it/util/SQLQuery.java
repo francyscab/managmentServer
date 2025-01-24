@@ -72,16 +72,21 @@ public class SQLQuery {
 
         public static final String GET_RICAVI_BY_MACCHINETTA = """
                 SELECT * FROM management_schema.ricavi
-                WHERE id_macchinetta = ?
+                WHERE id_macchinetta = ? AND id_istituto = ?
                 ORDER BY data_ricavo DESC
                 """;
 
+        public static final String GET_TOTALE_RICAVI_BY_ISTITUTO = """
+                SELECT COALESCE(SUM(somma_ricavo), 0) as totale
+                FROM management_schema.ricavi 
+                WHERE id_istituto = ?
+                """;
+
         public static final String GET_RICAVI_BY_ISTITUTO = """
-                SELECT r.* 
-                FROM management_schema.ricavi r
-                JOIN management_schema.macchinette m ON r.id_macchinetta = m.id_macchinetta
-                WHERE m.id_istituto = ?
-                ORDER BY r.data_ricavo DESC
+                SELECT * 
+                FROM management_schema.ricavi
+                WHERE id_istituto = ?
+                ORDER BY data_ricavo DESC
                 """;
 
         public static final String ADD_RICAVO = """
@@ -98,14 +103,9 @@ public class SQLQuery {
         public static final String GET_TOTALE_RICAVI_BY_MACCHINETTA = """
                 SELECT COALESCE(SUM(somma_ricavo), 0) as totale
                 FROM management_schema.ricavi
-                WHERE id_macchinetta = ?
+                WHERE id_macchinetta = ? AND id_istituto = ?
                 """;
 
-        public static final String GET_TOTALE_RICAVI_BY_ISTITUTO = """
-                SELECT COALESCE(SUM(r.somma_ricavo), 0) as totale
-                FROM management_schema.ricavi r
-                JOIN management_schema.macchinette m ON r.id_macchinetta = m.id_macchinetta
-                WHERE m.id_istituto = ?
-                """;
+
     }
 }

@@ -28,13 +28,14 @@ public class DaoRicavoImpl implements DaoRicavo {
     }
 
     @Override
-    public List<Ricavo> getRicaviByMacchinetta(String id_macchinetta) {
+    public List<Ricavo> getRicaviByMacchinetta(String id_macchinetta,int id_istituto) {
         List<Ricavo> ricavi = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.GET_RICAVI_BY_MACCHINETTA)) {
 
             ps.setString(1, id_macchinetta);
+            ps.setInt(2, id_istituto);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -98,11 +99,12 @@ public class DaoRicavoImpl implements DaoRicavo {
     }
 
     @Override
-    public double getTotaleRicaviByMacchinetta(String id_macchinetta) {
+    public double getTotaleRicaviByMacchinetta(String id_macchinetta,int id_istituto) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.GET_TOTALE_RICAVI_BY_MACCHINETTA)) {
 
             ps.setString(1, id_macchinetta);
+            ps.setInt(2, id_istituto);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -136,6 +138,7 @@ public class DaoRicavoImpl implements DaoRicavo {
                 rs.getInt("id_ricavo"),
                 rs.getString("id_macchinetta"),
                 rs.getBigDecimal("somma_ricavo"),
+                rs.getInt("id_istituto"),
                 rs.getTimestamp("data_ricavo"),
                 rs.getString("raccolto_da")
         );

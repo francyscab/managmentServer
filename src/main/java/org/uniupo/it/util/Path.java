@@ -21,13 +21,13 @@ public class Path {
 
         // PATH PER I RICAVI
         public static final String RicaviBasePath = basePath + "/ricavi";
-        public static final String GET_RICAVI_BY_MACCHINETTA = "/macchinetta/:id";
+        public static final String GET_RICAVI_BY_MACCHINETTA = "/macchinetta/:idIstituto/:id";
         public static final String GET_RICAVI_BY_ISTITUTO = "/istituto/:id";
         public static final String GET_TOTALE_RICAVI = "/totale";
-        public static final String GET_TOTALE_RICAVI_BY_MACCHINETTA = "/totale/macchinetta/:id";
+        public static final String GET_TOTALE_RICAVI_BY_MACCHINETTA = "/totale/macchinetta/:idIstituto/:id";
         public static final String GET_TOTALE_RICAVI_BY_ISTITUTO = "/totale/istituto/:id";
         public static final String ADD_RICAVO = "/add";
-        public static final String SVUOTA_RICAVI = "/svuota/:idIsituto/:idMacchinetta";
+        public static final String SVUOTA_RICAVI = "/svuota/:idIstituto/:idMacchinetta";
 
         // PATH PER LE MANUTENZIONI
         public static final String ManutenzioniBasePath = basePath + "/manutenzioni";

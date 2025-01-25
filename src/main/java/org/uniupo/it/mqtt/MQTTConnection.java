@@ -21,7 +21,7 @@ public class MQTTConnection {
     private static final String CLIENT_ID = "amministrazione-backend";
     private static final String CA_CERT_PATH = dotenv.get("CA_CERT_PATH");
 
-    private MQTTConnection() {
+    public MQTTConnection() {
         try {
             MemoryPersistence persistence = new MemoryPersistence();
             client = new MqttClient(BROKER_URL, CLIENT_ID, persistence);
@@ -33,6 +33,7 @@ public class MQTTConnection {
 
             client.connect(options);
         } catch (MqttException e) {
+            System.out.println("Errore nella connessione al broker MQTT");
             throw new RuntimeException("Errore nella connessione al broker MQTT", e);
         }
     }
@@ -64,12 +65,6 @@ public class MQTTConnection {
         }
     }
 
-    public static synchronized MQTTConnection getInstance() {
-        if (instance == null) {
-            instance = new MQTTConnection();
-        }
-        return instance;
-    }
 
     public void publish(String topic, String message) throws MqttException {
         MqttMessage mqttMessage = new MqttMessage(message.getBytes());

@@ -8,5 +8,5 @@ public interface DaoMacchinetta {
     Macchinetta getMacchinettaById(String id, int idIstituto);
     void addMacchinetta(Macchinetta macchinetta);
     void deleteMacchinetta(String id);
-    void updateMacchinaStatus(String istituto, int id_macchinetta, StatusMacchinetta statusMacchinetta);
+    void updateMacchinaStatus(String idMacchinetta, int idIstituto, StatusMacchinetta statusMacchinetta);
 }

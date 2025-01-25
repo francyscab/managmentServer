@@ -28,6 +28,7 @@ public class RicavoController {
 
     public static Route getRicaviByMacchinetta = (req, res) -> {
         res.type("application/json");
+        System.out.println("GET /ricavi/:id/:idIstituto");
         String idMacchinetta = req.params(":id");
         int idIstituto = Integer.parseInt(req.params(":idIstituto"));
         List<Ricavo> ricavi = daoRicavo.getRicaviByMacchinetta(idMacchinetta, idIstituto);
@@ -91,6 +92,7 @@ public class RicavoController {
         res.type("application/json");
         String idMacchinetta = req.params(":id");
         int idIstituto = Integer.parseInt(req.params(":idIstituto"));
+        System.out.println("GET /ricavi/" + idMacchinetta + "/" + idIstituto);
         double totale = daoRicavo.getTotaleRicaviByMacchinetta(idMacchinetta, idIstituto);
         return gson.toJson(totale);
     };
@@ -109,7 +111,7 @@ public class RicavoController {
 
     public static Route svuotaRicavi = (req, res) -> {
         res.type("application/json");
-        MQTTConnection mqttConnection = MQTTConnection.getInstance();
+        MQTTConnection mqttConnection = new MQTTConnection();
 
         String idIstituto = req.params("idIstituto");
         String idMacchinetta = req.params("idMacchinetta");

@@ -11,6 +11,7 @@ public class MQTTHeartbeatManager {
     private final ConcurrentHashMap<String, Instant> lastHeartbeats;
     private Thread monitoringThread;
     private volatile boolean running = true;
+    private MQTTConnection mqttConnection;
 
     private static final String HEARTBEAT_TOPIC = "macchinette/heartbeat/";
     private static final long HEARTBEAT_INTERVAL = 30000;
@@ -19,6 +20,7 @@ public class MQTTHeartbeatManager {
     public MQTTHeartbeatManager(DaoMacchinetta daoMacchinetta) {
         this.daoMacchinetta = daoMacchinetta;
         this.lastHeartbeats = new ConcurrentHashMap<>();
+        this.mqttConnection = new MQTTConnection();
         initialize();
     }
 
@@ -29,8 +31,9 @@ public class MQTTHeartbeatManager {
 
     private void setupMqttSubscription() {
         try {
-            MQTTConnection.getInstance().subscribe(HEARTBEAT_TOPIC + "+/+/response",
+            mqttConnection.subscribe(HEARTBEAT_TOPIC + "+/+/response",
                     (topic, message) -> {
+                        System.out.println("Received heartbeat response from " + topic);
                         String[] parts = topic.split("/");
                         if (parts.length >= 4) {
                             String compositeId = parts[2] + "-" + parts[3];
@@ -47,11 +50,13 @@ public class MQTTHeartbeatManager {
             while (running) {
                 try {
                     daoMacchinetta.getAllMacchinette().forEach(macchinetta -> {
+                        System.out.println("Sending heartbeat for " + macchinetta.getId_macchinetta());
                         try {
                             sendHeartbeat(macchinetta.getId_macchinetta(), macchinetta.getId_istituto());
                         } catch (MqttException e) {
                             System.err.println("Errore heartbeat per " + macchinetta.getId_macchinetta() +
                                     ": " + e.getMessage());
+                            e.printStackTrace();
                         }
                     });
                     checkTimeouts();
@@ -67,8 +72,9 @@ public class MQTTHeartbeatManager {
     }
 
     private void sendHeartbeat(String machineId, int instituteId) throws MqttException {
-        String topic = HEARTBEAT_TOPIC + machineId + "/" + instituteId + "/request";
-        MQTTConnection.getInstance().publish(topic, "ping");
+        String topic = HEARTBEAT_TOPIC + instituteId + "/" +machineId  + "/request";
+        System.out.println("Sending heartbeat to " + topic);
+        mqttConnection.publish(topic, "ping");
     }
 
     private void handleHeartbeatResponse(String compositeId) {
@@ -76,8 +82,8 @@ public class MQTTHeartbeatManager {
         String[] parts = compositeId.split("-");
         if (parts.length == 2) {
             try {
-                daoMacchinetta.updateMacchinaStatus(parts[0],
-                        Integer.parseInt(parts[1]), StatusMacchinetta.OPERATIVA);
+                daoMacchinetta.updateMacchinaStatus(parts[1],
+                        Integer.parseInt(parts[0]), StatusMacchinetta.OPERATIVA);
             } catch (Exception e) {
                 System.err.println("Errore aggiornamento stato per " + compositeId +
                         ": " + e.getMessage());
@@ -92,8 +98,8 @@ public class MQTTHeartbeatManager {
                 String[] parts = compositeId.split("-");
                 if (parts.length == 2) {
                     try {
-                        daoMacchinetta.updateMacchinaStatus(parts[0],
-                                Integer.parseInt(parts[1]), StatusMacchinetta.NECESSITA_MANUTENZIONE);
+                        daoMacchinetta.updateMacchinaStatus(parts[1],
+                                Integer.parseInt(parts[0]), StatusMacchinetta.NECESSITA_MANUTENZIONE);
                         lastHeartbeats.remove(compositeId);
                     } catch (Exception e) {
                         System.err.println("Errore timeout per " + compositeId +

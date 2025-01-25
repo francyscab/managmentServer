@@ -6,7 +6,8 @@ import spark.Route;
 
 public class ManutenzioneController {
     public static Route richiediManutenzione = (req, res) -> {
-        MQTTConnection mqttConnection = MQTTConnection.getInstance();
+
+        MQTTConnection mqttConnection = new MQTTConnection();
         String idMacchinetta = req.params(":idMacchinetta");
         String idIstituto = req.params(":idIstituto");
 

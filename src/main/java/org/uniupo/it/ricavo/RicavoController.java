@@ -6,7 +6,6 @@ import org.uniupo.it.util.ErrorResponse;
 import org.uniupo.it.util.SuccessResponse;
 import spark.Route;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static org.uniupo.it.Application.gson;
@@ -32,10 +31,6 @@ public class RicavoController {
         String idMacchinetta = req.params(":id");
         int idIstituto = Integer.parseInt(req.params(":idIstituto"));
         List<Ricavo> ricavi = daoRicavo.getRicaviByMacchinetta(idMacchinetta, idIstituto);
-        if (ricavi.isEmpty()) {
-            res.status(404);
-            return gson.toJson(new ErrorResponse("Nessun ricavo trovato per questa macchinetta"));
-        }
         return gson.toJson(ricavi);
     };
 

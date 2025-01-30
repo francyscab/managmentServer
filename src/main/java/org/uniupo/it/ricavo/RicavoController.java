@@ -106,7 +106,7 @@ public class RicavoController {
 
     public static Route svuotaRicavi = (req, res) -> {
         res.type("application/json");
-        MQTTConnection mqttConnection = new MQTTConnection();
+
 
         String idIstituto = req.params("idIstituto");
         String idMacchinetta = req.params("idMacchinetta");
@@ -114,7 +114,7 @@ public class RicavoController {
         String topic = "/macchinetta/ricavo/" + idIstituto + "/" + idMacchinetta;
 
         try{
-            mqttConnection.publish(topic, "Preleva ricavo");
+            MQTTConnection.getInstance().publish(topic, "Preleva ricavo");
             return gson.toJson(new SuccessResponse("Richiesta inviata"));
         } catch (MqttException e) {
             res.status(500);

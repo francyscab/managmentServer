@@ -9,4 +9,6 @@ public interface DaoMacchinetta {
     void addMacchinetta(Macchinetta macchinetta);
     void deleteMacchinetta(String id);
     void updateMacchinaStatus(String idMacchinetta, int idIstituto, StatusMacchinetta statusMacchinetta);
+
+    void updateMachineOnlineStatus(String idMacchinetta, int idIstituto, boolean online);
 }

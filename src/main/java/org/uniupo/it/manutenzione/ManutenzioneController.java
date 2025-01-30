@@ -7,14 +7,13 @@ import spark.Route;
 public class ManutenzioneController {
     public static Route richiediManutenzione = (req, res) -> {
 
-        MQTTConnection mqttConnection = new MQTTConnection();
         String idMacchinetta = req.params(":idMacchinetta");
         String idIstituto = req.params(":idIstituto");
 
         String topic = "manutenzione/" + idIstituto + "/" + idMacchinetta;
 
         try {
-            mqttConnection.publish(topic, "Richiesta Manutenzione");
+            MQTTConnection.getInstance().publish(topic, "Richiesta Manutenzione");
             System.out.println(topic);
             return "Richiesta di manutenzione inviata";
         }catch (MqttException e){

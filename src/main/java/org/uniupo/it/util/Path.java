@@ -33,7 +33,12 @@ public class Path {
         public static final String ManutenzioniBasePath = basePath + "/manutenzioni";
         public static final String RICHIEDI_MANUTENZIONE = "/richiesta/:idIstituto/:idMacchinetta";
 
-        // PATH PER LE SCORTE
+
+        // Updated order in Path.java
+        public static final String TransazioniBasePath = basePath + "/transazioni";
+        public static final String GET_TRANSAZIONI_BY_MACCHINETTA = "/istituto/:idIstituto/macchinetta/:idMacchinetta";
+        public static final String GET_TRANSAZIONI_BY_ISTITUTO = "/istituto/:id";
+        public static final String GET_TRANSAZIONE_BY_ID = "/transazione/:id";  // Changed to be more specific
 
     }
 }

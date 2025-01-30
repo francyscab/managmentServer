@@ -1,8 +1,8 @@
 package org.uniupo.it.mqtt;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -21,8 +21,11 @@ public class MQTTConnection {
     private static final String CLIENT_ID = "amministrazione-backend";
     private static final String CA_CERT_PATH = dotenv.get("CA_CERT_PATH");
 
-    public MQTTConnection() {
+    private MQTTConnection() {
         try {
+            if (instance != null) {
+                throw new RuntimeException("Use getInstance() method to get the singleton instance");
+            }
             MemoryPersistence persistence = new MemoryPersistence();
             client = new MqttClient(BROKER_URL, CLIENT_ID, persistence);
 
@@ -63,6 +66,17 @@ public class MQTTConnection {
         } catch (Exception e) {
             throw new RuntimeException("Errore nella configurazione SSL", e);
         }
+    }
+
+    public static MQTTConnection getInstance() {
+        if (instance == null) {
+            synchronized (MQTTConnection.class) {
+                if (instance == null) {
+                    instance = new MQTTConnection();
+                }
+            }
+        }
+        return instance;
     }
 
 

@@ -1,7 +1,6 @@
 // DaoMacchinetteImpl.java
 package org.uniupo.it.macchinetta;
 
-import org.eclipse.jetty.util.log.Log;
 import org.uniupo.it.DatabaseConnection;
 import org.uniupo.it.util.SQLQuery;
 
@@ -131,5 +130,24 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
                 rs.getTimestamp("data_installazione"),
                 rs.getString("piano")
         );
+    }
+
+    @Override
+    public void updateMachineOnlineStatus(String idMacchinetta, int idIstituto, boolean online) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.UPDATE_MACCHINA_ONLINE_STATUS)) {
+
+            ps.setBoolean(1, online);
+            ps.setString(2, idMacchinetta);
+            ps.setInt(3, idIstituto);
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new IllegalStateException("Macchinetta non trovata");
+            }
+        } catch (SQLException e) {
+            System.out.println("Errore nell'aggiornamento dello stato online della macchinetta: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

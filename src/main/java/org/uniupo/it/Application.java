@@ -2,6 +2,7 @@ package org.uniupo.it;
 
 import com.google.gson.Gson;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.uniupo.it.istituto.DaoIstitutoImpl;
 import org.uniupo.it.istituto.IstitutoController;
 import org.uniupo.it.macchinetta.DaoMacchinetteImpl;
@@ -10,6 +11,9 @@ import org.uniupo.it.manutenzione.ManutenzioneController;
 import org.uniupo.it.mqtt.MQTTConnection;
 import org.uniupo.it.mqtt.MQTTHeartbeatManager;
 import org.uniupo.it.ricavo.RicavoController;
+import org.uniupo.it.transazione.DaoTransazioneImpl;
+import org.uniupo.it.transazione.TransactionMessage;
+import org.uniupo.it.transazione.TransazioneController;
 import org.uniupo.it.util.*;
 
 import static spark.Spark.*;
@@ -18,11 +22,13 @@ import static spark.debug.DebugScreen.enableDebugScreen;
 public class Application {
     private static final Dotenv dotenv = Dotenv.configure().load();
     public static DaoIstitutoImpl daoIstituto;
+    public static DaoTransazioneImpl daoTransazione;
     public static Gson gson;
 
     public static void main(String[] args) {
 
         daoIstituto = new DaoIstitutoImpl();
+        daoTransazione = new DaoTransazioneImpl();
         gson = new Gson();
 
         port(Integer.parseInt(dotenv.get("SERVER_PORT")));
@@ -104,9 +110,13 @@ public class Application {
             post(Path.Web.RICHIEDI_MANUTENZIONE, ManutenzioneController.richiediManutenzione);
         });
 
-        /*path(Path.Web.ScorteBasePath, () -> {
-            get(Path.Web.GET_SCORTE_MACCHINETTA, ScorteController.getScorteByMacchinetta);
-        });*/
+        path(Path.Web.TransazioniBasePath, () -> {
+            get(Path.Web.GET_TRANSAZIONI_BY_MACCHINETTA, TransazioneController.getTransazioniByMacchinetta);
+            get(Path.Web.GET_TRANSAZIONI_BY_ISTITUTO, TransazioneController.getTransazioniByIstituto);
+            get(Path.Web.GET_TRANSAZIONE_BY_ID, TransazioneController.getTransazioneById);
+            get("", TransazioneController.getAllTransazioni);
+        });
+
 
         notFound((req, res) -> {
             res.status(404);
@@ -130,6 +140,42 @@ public class Application {
             response.body(gson.toJson(new ErrorResponse("Errore interno del server")));
         });
 
+
+        try {
+            MQTTConnection.getInstance().subscribe(Topics.ASSISTANCE_CHECK_CONSUMABLES_TOPIC, (topic, message) -> {
+                System.out.println("Messaggio ricevuto su " + topic + ": " + new String(message.getPayload()));
+            });
+        } catch (MqttException e) {
+            System.out.println("Errore sottoscrizione topic " + Topics.ASSISTANCE_CHECK_CONSUMABLES_TOPIC);
+        }
+
+        try {
+            MQTTConnection.getInstance().subscribe(Topics.MANAGEMENT_SERVER_CASHBOX_TOPIC, (topic, message) -> {
+                System.out.println("Messaggio ricevuto su " + topic + ": " + new String(message.getPayload()));
+            });
+        } catch (MqttException e) {
+            System.out.println("Errore sottoscrizione topic " + Topics.MANAGEMENT_SERVER_CASHBOX_TOPIC);
+        }
+
+        try {
+            MQTTConnection.getInstance().subscribe(Topics.GENERIC_FAULT_TOPIC, (topic, message) -> {
+                System.out.println("Messaggio ricevuto su " + topic + ": " + new String(message.getPayload()));
+            });
+        } catch (MqttException e) {
+            System.out.println("Errore sottoscrizione topic " + Topics.GENERIC_FAULT_TOPIC);
+        }
+
+        try {
+            MQTTConnection.getInstance().subscribe(Topics.REGISTER_TRANSACTION_TOPIC, (topic, message) -> {
+                String messageContent = new String(message.getPayload());
+                System.out.println("Messaggio ricevuto su " + topic + ": " + messageContent);
+                TransactionMessage transactionMsg = gson.fromJson(messageContent, TransactionMessage.class);
+                daoTransazione.addTransazione(transactionMsg);
+                System.out.println("Transazione registrata: " + messageContent);
+            });
+        } catch (MqttException e) {
+            System.out.println("Errore sottoscrizione topic " + Topics.REGISTER_TRANSACTION_TOPIC);
+        }
 
         new MQTTHeartbeatManager(new DaoMacchinetteImpl());
 

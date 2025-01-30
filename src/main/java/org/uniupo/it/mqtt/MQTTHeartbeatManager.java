@@ -2,7 +2,7 @@ package org.uniupo.it.mqtt;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.uniupo.it.macchinetta.DaoMacchinetta;
-import org.uniupo.it.macchinetta.StatusMacchinetta;
+
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +11,7 @@ public class MQTTHeartbeatManager {
     private final ConcurrentHashMap<String, Instant> lastHeartbeats;
     private Thread monitoringThread;
     private volatile boolean running = true;
-    private MQTTConnection mqttConnection;
+
 
     private static final String HEARTBEAT_TOPIC = "macchinette/heartbeat/";
     private static final long HEARTBEAT_INTERVAL = 30000;
@@ -20,7 +20,6 @@ public class MQTTHeartbeatManager {
     public MQTTHeartbeatManager(DaoMacchinetta daoMacchinetta) {
         this.daoMacchinetta = daoMacchinetta;
         this.lastHeartbeats = new ConcurrentHashMap<>();
-        this.mqttConnection = new MQTTConnection();
         initialize();
     }
 
@@ -31,7 +30,7 @@ public class MQTTHeartbeatManager {
 
     private void setupMqttSubscription() {
         try {
-            mqttConnection.subscribe(HEARTBEAT_TOPIC + "+/+/response",
+            MQTTConnection.getInstance().subscribe(HEARTBEAT_TOPIC + "+/+/response",
                     (topic, message) -> {
                         System.out.println("Received heartbeat response from " + topic);
                         String[] parts = topic.split("/");
@@ -74,7 +73,7 @@ public class MQTTHeartbeatManager {
     private void sendHeartbeat(String machineId, int instituteId) throws MqttException {
         String topic = HEARTBEAT_TOPIC + instituteId + "/" +machineId  + "/request";
         System.out.println("Sending heartbeat to " + topic);
-        mqttConnection.publish(topic, "ping");
+        MQTTConnection.getInstance().publish(topic, "ping");
     }
 
     private void handleHeartbeatResponse(String compositeId) {
@@ -82,8 +81,8 @@ public class MQTTHeartbeatManager {
         String[] parts = compositeId.split("-");
         if (parts.length == 2) {
             try {
-                daoMacchinetta.updateMacchinaStatus(parts[1],
-                        Integer.parseInt(parts[0]), StatusMacchinetta.OPERATIVA);
+                daoMacchinetta.updateMachineOnlineStatus(parts[1],
+                        Integer.parseInt(parts[0]), true);
             } catch (Exception e) {
                 System.err.println("Errore aggiornamento stato per " + compositeId +
                         ": " + e.getMessage());
@@ -98,8 +97,8 @@ public class MQTTHeartbeatManager {
                 String[] parts = compositeId.split("-");
                 if (parts.length == 2) {
                     try {
-                        daoMacchinetta.updateMacchinaStatus(parts[1],
-                                Integer.parseInt(parts[0]), StatusMacchinetta.NECESSITA_MANUTENZIONE);
+                        daoMacchinetta.updateMachineOnlineStatus(parts[1],
+                                Integer.parseInt(parts[0]), false);
                         lastHeartbeats.remove(compositeId);
                     } catch (Exception e) {
                         System.err.println("Errore timeout per " + compositeId +
@@ -110,12 +109,6 @@ public class MQTTHeartbeatManager {
         });
     }
 
-    public boolean isMacchinaOnline(String machineId, int instituteId) {
-        String compositeId = machineId + "-" + instituteId;
-        Instant lastHeartbeat = lastHeartbeats.get(compositeId);
-        return lastHeartbeat != null &&
-                (lastHeartbeat.toEpochMilli() + TIMEOUT_THRESHOLD >= Instant.now().toEpochMilli());
-    }
 
     public void shutdown() {
         running = false;

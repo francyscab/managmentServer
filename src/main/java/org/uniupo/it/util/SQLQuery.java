@@ -62,6 +62,11 @@ public class SQLQuery {
                 SET stato_corrente = ?::management_schema.status_macchinetta 
                 WHERE id_macchinetta = ? AND id_istituto = ?
                 """;
+        public static final String UPDATE_MACCHINA_ONLINE_STATUS = """
+                 UPDATE management_schema.macchinette 
+                SET is_online = ?
+                WHERE id_macchinetta = ? AND id_istituto = ?
+                """;
     }
 
     public static class Ricavo {
@@ -107,5 +112,18 @@ public class SQLQuery {
                 """;
 
 
+    }
+
+    public static class Transazione {
+        public static final String INSERT_TRANSACTION =
+                "INSERT INTO management_schema.transazioni (id_macchinetta, id_istituto, codice_bevanda, livello_zucchero, timestamp, transaction_id) VALUES (?, ?, ?, ?, ?, ?)";
+        public static final String GET_BY_MACHINE =
+                "SELECT * FROM management_schema.transazioni WHERE id_macchinetta = ? AND id_istituto = ? ORDER BY timestamp DESC";
+        public static final String GET_BY_INSTITUTE =
+                "SELECT * FROM management_schema.transazioni WHERE id_istituto = ? ORDER BY timestamp DESC";
+        public static final String GET_BY_ID =
+                "SELECT * FROM management_schema.transazioni WHERE transaction_id = ?";
+        public static final String GET_ALL =
+                "SELECT * FROM management_schema.transazioni ORDER BY timestamp DESC";
     }
 }

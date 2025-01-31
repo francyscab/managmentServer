@@ -11,8 +11,9 @@ public class Macchinetta {
     private Timestamp data_ultimo_svuotamento_cassa;
     private Timestamp data_installazione;
     private String piano;
+    private boolean online;
 
-    public Macchinetta(String id_macchinetta, int id_istituto, StatusMacchinetta status, Timestamp data_ultima_manutenzione, Timestamp data_ultimo_refill, Timestamp data_ultimo_svuotamento_cassa, Timestamp data_installazione, String piano) {
+    public Macchinetta(String id_macchinetta, int id_istituto, StatusMacchinetta status, Timestamp data_ultima_manutenzione, Timestamp data_ultimo_refill, Timestamp data_ultimo_svuotamento_cassa, Timestamp data_installazione, String piano, boolean online) {
         this.id_macchinetta = id_macchinetta;
         this.id_istituto = id_istituto;
         this.status = status;
@@ -21,6 +22,7 @@ public class Macchinetta {
         this.data_ultimo_svuotamento_cassa = data_ultimo_svuotamento_cassa;
         this.data_installazione = data_installazione;
         this.piano = piano;
+        this.online = online;
     }
 
     public Macchinetta(String idMacchinetta, int idIstituto, String piano) {
@@ -94,6 +96,14 @@ public class Macchinetta {
         this.piano = piano;
     }
 
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
     @Override
     public String toString() {
         return "Macchinetta{" +
@@ -105,6 +115,7 @@ public class Macchinetta {
                 ", data_ultimo_svuotamento_cassa=" + data_ultimo_svuotamento_cassa +
                 ", data_installazione=" + data_installazione +
                 ", piano='" + piano + '\'' +
+                ", online=" + online +
                 '}';
     }
 }

@@ -128,7 +128,8 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
                 rs.getTimestamp("data_ultimo_refill"),
                 rs.getTimestamp("data_ultimo_svuotamento_cassa"),
                 rs.getTimestamp("data_installazione"),
-                rs.getString("piano")
+                rs.getString("piano"),
+                rs.getBoolean("is_online")
         );
     }
 

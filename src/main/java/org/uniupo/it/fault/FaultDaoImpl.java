@@ -82,17 +82,40 @@ public class FaultDaoImpl implements FaultDao {
 
     @Override
     public int markFaultsAsResolved(List<UUID> faultIds) {
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQLQuery.Fault.MARK_FAULTS_AS_RESOLVED)) {
+        int totalResolved = 0;
 
-            Array uuidArray = conn.createArrayOf("uuid", faultIds.toArray());
-            ps.setArray(1, uuidArray);
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
 
-            return ps.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement(SQLQuery.Fault.MARK_FAULTS_AS_RESOLVED)) {
+                for (UUID faultId : faultIds) {
+                    System.out.println("UUID type: " + faultId.getClass().getName());
+                    ps.setObject(1, faultId, Types.OTHER);
+                    int affected = ps.executeUpdate();
+                    totalResolved += affected;
 
+                    System.out.println("Resolving fault with ID: " + faultId);
+                    if (affected > 0) {
+                        System.out.println("Successfully resolved fault: " + faultId);
+                    } else {
+                        System.out.println("No fault found with ID: " + faultId +
+                                " (Query executed but no rows affected)");
+                    }
+                }
+
+                conn.commit();
+                System.out.println("Total faults resolved: " + totalResolved);
+                return totalResolved;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                System.err.println("Error executing fault resolution query: " + e.getMessage());
+                System.err.println("SQL State: " + e.getSQLState());
+                throw new RuntimeException("Error during fault resolution", e);
+            }
         } catch (SQLException e) {
-            System.out.println("Error marking faults as resolved" + e.getMessage());
-            throw new RuntimeException("Errore durante l'aggiornamento dei guasti", e);
+            System.err.println("Database connection error: " + e.getMessage());
+            throw new RuntimeException("Database connection error", e);
         }
     }
 

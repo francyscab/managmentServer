@@ -196,8 +196,7 @@ public class Application {
                 System.out.println("Ricavo ricevuto: " + ricavo);
                 daoRicavo.addRicavo(ricavo);
 
-            }
-            ));
+            }));
 
         } catch (MqttException e) {
             System.out.println("Errore sottoscrizione topic " + Topics.MANAGEMENT_NEW_FAULT_TOPIC);
@@ -209,35 +208,21 @@ public class Application {
                 }.getType();
                 List<UUID> faultIds = gson.fromJson(new String(message.getPayload()), UUidListType);
                 faultDao.markFaultsAsResolved(faultIds);
-
-            }
-            ));
+            }));
         } catch (MqttException e) {
+            System.out.println("Errore sottoscrizione topic " + Topics.MANAGEMENT_RESOLVE_FAULT_TOPIC);
             throw new RuntimeException(e);
         }
 
 
         try {
-            System.out.println("=== INIZIALIZZAZIONE SOTTOSCRIZIONE TRANSAZIONI ===");
             MQTTConnection.getInstance().subscribe(Topics.REGISTER_TRANSACTION_TOPIC, (topic, message) -> {
-                System.out.println("\n=== RICEZIONE MESSAGGIO TRANSAZIONE ===");
                 String messageContent = new String(message.getPayload());
-                System.out.println("Topic: " + topic);
-                System.out.println("Payload ricevuto: " + messageContent);
 
-                try {
-                    TransactionMessage transactionMsg = gson.fromJson(messageContent, TransactionMessage.class);
-                    System.out.println("Messaggio deserializzato: " + transactionMsg);
-                    daoTransazione.addTransazione(transactionMsg);
-                    System.out.println("Transazione salvata con successo");
-                } catch (Exception e) {
-                    System.out.println("Errore nell'elaborazione del messaggio:");
-                    System.out.println("Tipo errore: " + e.getClass().getName());
-                    System.out.println("Messaggio errore: " + e.getMessage());
-                    e.printStackTrace();
-                }
+                TransactionMessage transactionMsg = gson.fromJson(messageContent, TransactionMessage.class);
+                daoTransazione.addTransazione(transactionMsg);
+
             });
-            System.out.println("Sottoscrizione completata con successo");
         } catch (MqttException e) {
             System.out.println("Errore nella sottoscrizione: " + e.getMessage());
             e.printStackTrace();

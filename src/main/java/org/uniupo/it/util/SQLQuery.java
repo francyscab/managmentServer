@@ -141,12 +141,10 @@ public class SQLQuery {
                 ORDER BY data_segnalazione DESC
                 """;
 
-        public static final String MARK_FAULTS_AS_RESOLVED = """
-                UPDATE management_schema.guasti 
-                SET risolto = true 
-                WHERE id_fault = ANY(?) 
-                AND risolto = false
-                """;
+        public static final String MARK_FAULTS_AS_RESOLVED =
+                "UPDATE management_schema.guasti " +
+                        "SET risolto = true " +
+                        "WHERE id_fault::uuid = ?::uuid";
 
 
     }

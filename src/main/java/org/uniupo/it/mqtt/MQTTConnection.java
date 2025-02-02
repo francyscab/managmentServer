@@ -82,6 +82,7 @@ public class MQTTConnection {
 
     public void publish(String topic, String message) throws MqttException {
         MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+        mqttMessage.setQos(1);
         client.publish(topic, mqttMessage);
     }
 

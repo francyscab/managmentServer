@@ -96,8 +96,8 @@ public class SQLQuery {
 
         public static final String ADD_RICAVO = """
                 INSERT INTO management_schema.ricavi
-                (id_macchinetta, somma_ricavo, raccolto_da)
-                VALUES (?, ?, ?)
+                (id_macchinetta,id_istituto, somma_ricavo, raccolto_da)
+                VALUES (?, ?, ?, ?)
                 """;
 
         public static final String GET_TOTALE_RICAVI = """
@@ -125,5 +125,29 @@ public class SQLQuery {
                 "SELECT * FROM management_schema.transazioni WHERE transaction_id = ?";
         public static final String GET_ALL =
                 "SELECT * FROM management_schema.transazioni ORDER BY timestamp DESC";
+    }
+
+    public static class Fault {
+        public static final String INSERT_FAULT = """
+                 INSERT INTO management_schema.guasti\s
+                 (id_macchinetta, id_istituto, descrizione, data_segnalazione, tipo_guasto, id_fault)
+                 VALUES (?, ?, ?, ?, CAST(? as management_schema.tipo_guasto), ?)
+                \s""";
+
+        public static final String GET_FAULTS_BY_MACHINE = """
+                SELECT * FROM management_schema.guasti
+                WHERE id_macchinetta = ?
+                AND id_istituto = ?
+                ORDER BY data_segnalazione DESC
+                """;
+
+        public static final String MARK_FAULTS_AS_RESOLVED = """
+                UPDATE management_schema.guasti 
+                SET risolto = true 
+                WHERE id_fault = ANY(?) 
+                AND risolto = false
+                """;
+
+
     }
 }

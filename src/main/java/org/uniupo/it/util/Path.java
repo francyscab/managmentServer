@@ -40,5 +40,9 @@ public class Path {
         public static final String GET_TRANSAZIONI_BY_ISTITUTO = "/istituto/:id";
         public static final String GET_TRANSAZIONE_BY_ID = "/transazione/:id";  // Changed to be more specific
 
+
+        public static final String FaultsBasePath = basePath + "/faults";
+        public static final String GET_FAULTS_BY_MACHINE = "/macchinetta/:idIstituto/:id";
+
     }
 }

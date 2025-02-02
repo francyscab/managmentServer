@@ -100,34 +100,12 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
         }
     }
 
-    @Override
-    public void updateMacchinaStatus(String id_macchinetta, int id_istituto, StatusMacchinetta status) {
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.UPDATE_MACCHINA_STATUS)) {
 
-            ps.setString(1, status.name());
-            ps.setString(2, id_macchinetta);
-            ps.setInt(3, id_istituto);
-
-            int affectedRows = ps.executeUpdate();
-            if (affectedRows == 0) {
-                throw new IllegalStateException("Macchinetta non trovata");
-            }
-        } catch (SQLException e) {
-            System.out.println("Errore nell'aggiornamento dello stato della macchinetta: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
 
     private Macchinetta extractMacchinettaFromResultSet(ResultSet rs) throws SQLException {
         return new Macchinetta(
                 rs.getString("id_macchinetta"),
                 rs.getInt("id_istituto"),
-                StatusMacchinetta.valueOf(rs.getString("stato_corrente")),
-                rs.getTimestamp("data_ultima_manutenzione"),
-                rs.getTimestamp("data_ultimo_refill"),
-                rs.getTimestamp("data_ultimo_svuotamento_cassa"),
-                rs.getTimestamp("data_installazione"),
                 rs.getString("piano"),
                 rs.getBoolean("is_online")
         );

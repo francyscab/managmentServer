@@ -74,11 +74,13 @@ public class DaoRicavoImpl implements DaoRicavo {
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Ricavo.ADD_RICAVO)) {
 
             ps.setString(1, ricavo.getId_macchinetta());
-            ps.setBigDecimal(2, ricavo.getSomma_ricavo());
-            ps.setString(3, ricavo.getRaccolto_da());
+            ps.setInt(2, ricavo.getId_istituto());
+            ps.setBigDecimal(3, ricavo.getSomma_ricavo());
+            ps.setString(4, ricavo.getRaccolto_da());
 
             ps.executeUpdate();
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
     }

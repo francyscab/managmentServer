@@ -3,10 +3,11 @@ package org.uniupo.it.ricavo;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.uniupo.it.mqtt.MQTTConnection;
 import org.uniupo.it.util.ErrorResponse;
-import org.uniupo.it.util.SuccessResponse;
+import org.uniupo.it.util.Topics;
 import spark.Route;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.uniupo.it.Application.gson;
 
@@ -50,32 +51,6 @@ public class RicavoController {
         }
     };
 
-    /**public static Route addRicavo = (req, res) -> {
-        res.type("application/json");
-        try {
-            String idMacchinetta = req.queryParams("id_macchinetta");
-            BigDecimal sommaRicavo = new BigDecimal(req.queryParams("somma_ricavo"));
-            String raccoltoDa = req.queryParams("raccolto_da");
-
-            if (idMacchinetta == null || req.queryParams("somma_ricavo") == null || raccoltoDa == null) {
-                res.status(400);
-                return gson.toJson(new ErrorResponse("Parametri mancanti"));
-            }
-
-            Ricavo ricavo = new Ricavo(idMacchinetta, sommaRicavo, raccoltoDa);
-            daoRicavo.addRicavo(ricavo);
-
-            res.status(201);
-            return gson.toJson(new SuccessResponse("Ricavo aggiunto con successo"));
-        } catch (NumberFormatException e) {
-            res.status(400);
-            return gson.toJson(new ErrorResponse("Formato somma non valido"));
-        } catch (Exception e) {
-            res.status(500);
-            System.out.println(e.getMessage());
-            return gson.toJson(new ErrorResponse("Errore interno del server"));
-        }
-    };*/
 
     public static Route getTotaleRicavi = (req, res) -> {
         res.type("application/json");
@@ -111,13 +86,16 @@ public class RicavoController {
         String idIstituto = req.params("idIstituto");
         String idMacchinetta = req.params("idMacchinetta");
 
-        String topic = "/macchinetta/ricavo/" + idIstituto + "/" + idMacchinetta;
+        String username = gson.fromJson(req.body(), Map.class).get("username").toString();
 
         try{
-            MQTTConnection.getInstance().publish(topic, "Preleva ricavo");
-            return gson.toJson(new SuccessResponse("Richiesta inviata"));
+            System.out.println("Sto inviando la richiesta di manutenzione " + String.format(Topics.MANAGEMENT_REVENUE_TOPIC, idIstituto, idMacchinetta));
+            MQTTConnection.getInstance().publish(String.format(Topics.MANAGEMENT_REVENUE_TOPIC, idIstituto, idMacchinetta), username);
+            System.out.println("Richiesta di manutenzione inviata");
+            return "Richiesta di manutenzione inviata";
         } catch (MqttException e) {
             res.status(500);
+            System.err.println("Errore nell'invio della richiesta di manutenzione" + e.getMessage());
             return gson.toJson(new ErrorResponse("Errore interno del server"));
         }
     };

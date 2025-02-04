@@ -13,4 +13,7 @@ public class Topics {
     public static final String MANAGEMENT_REVENUE_TOPIC = "management/%s/%s/revenue";
 
     public static final String TECHNICIAN_ASSISTANCE_TOPIC = "macchinette/%s/%s/assistance/technician";
+
+    public static final String KILL_SERVICE_TOPIC = "macchinette/%s/%s/killService";
+
 }

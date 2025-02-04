@@ -54,7 +54,7 @@ public class SQLQuery {
 
         public static final String DELETE_MACCHINETTA = """
                 DELETE FROM management_schema.macchinette
-                WHERE id_macchinetta = ?
+                WHERE id_macchinetta = ? AND id_istituto = ?
                 """;
 
         public static final String UPDATE_MACCHINA_STATUS = """

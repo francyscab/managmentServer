@@ -1,11 +1,12 @@
 
 package org.uniupo.it.macchinetta;
 
+import org.uniupo.it.mqtt.MQTTConnection;
 import org.uniupo.it.util.ErrorResponse;
 import org.uniupo.it.util.SuccessResponse;
+import org.uniupo.it.util.Topics;
 import spark.Route;
 
-import java.nio.file.FileSystemNotFoundException;
 import java.util.List;
 
 import static org.uniupo.it.Application.gson;
@@ -75,8 +76,11 @@ public class MacchinettaController {
     public static Route deleteMacchinetta = (req, res) -> {
         res.type("application/json");
         String id = req.params(":id");
+        int idIstituto = Integer.parseInt(req.params(":idIstituto"));
         try {
-            daoMacchinetta.deleteMacchinetta(id);
+            /**daoMacchinetta.deleteMacchinetta(id, idIstituto);
+             return gson.toJson(new SuccessResponse("Macchinetta eliminata con successo"));*/
+            MQTTConnection.getInstance().publish(String.format(Topics.KILL_SERVICE_TOPIC, idIstituto, id), "kill");
             return gson.toJson(new SuccessResponse("Macchinetta eliminata con successo"));
         } catch (IllegalStateException e) {
             res.status(404);

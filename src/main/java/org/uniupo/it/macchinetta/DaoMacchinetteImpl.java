@@ -84,11 +84,12 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
     }
 
     @Override
-    public void deleteMacchinetta(String id) {
+    public void deleteMacchinetta(String id, int idIstituto) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQLQuery.Macchinetta.DELETE_MACCHINETTA)) {
 
             ps.setString(1, id);
+            ps.setInt(2, idIstituto);
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {

@@ -58,6 +58,8 @@ public class MacchinettaController {
                 return gson.toJson(new ErrorResponse("Parametri mancanti"));
             }
 
+            MQTTConnection.getInstance().publish(String.format(Topics.NEW_MACHINE_TOPIC, idIstituto, idMacchinetta), "newMachine");
+
             Macchinetta macchinetta = new Macchinetta(idMacchinetta, idIstituto, piano);
             daoMacchinetta.addMacchinetta(macchinetta);
 

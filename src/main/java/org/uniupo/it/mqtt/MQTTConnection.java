@@ -64,6 +64,7 @@ public class MQTTConnection {
 
             return context.getSocketFactory();
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException("Errore nella configurazione SSL", e);
         }
     }

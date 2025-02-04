@@ -16,4 +16,6 @@ public class Topics {
 
     public static final String KILL_SERVICE_TOPIC = "macchinette/%s/%s/killService";
 
+    public static final String NEW_MACHINE_TOPIC = "machineServer/%s/%s/newMachine";
+
 }

@@ -80,8 +80,7 @@ public class MacchinettaController {
         String id = req.params(":id");
         int idIstituto = Integer.parseInt(req.params(":idIstituto"));
         try {
-            /**daoMacchinetta.deleteMacchinetta(id, idIstituto);
-             return gson.toJson(new SuccessResponse("Macchinetta eliminata con successo"));*/
+            daoMacchinetta.deleteMacchinetta(id, idIstituto);
             MQTTConnection.getInstance().publish(String.format(Topics.KILL_SERVICE_TOPIC, idIstituto, id), "kill");
             return gson.toJson(new SuccessResponse("Macchinetta eliminata con successo"));
         } catch (IllegalStateException e) {

@@ -71,7 +71,7 @@ public class MacchinettaController {
         } catch (Exception e) {
             res.status(500);
             System.out.println(e.getMessage());
-            return gson.toJson(new ErrorResponse("Errore interno del server"));
+            return gson.toJson(new ErrorResponse("Una macchinetta con questo ID è già presente!"));
         }
     };
 

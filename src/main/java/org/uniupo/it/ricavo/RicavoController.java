@@ -6,7 +6,6 @@ import org.uniupo.it.util.ErrorResponse;
 import org.uniupo.it.util.Topics;
 import spark.Route;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,7 @@ public class RicavoController {
         List<Ricavo> ricavi = daoRicavo.getRicaviByMacchinetta(idMacchinetta, idIstituto);
         if (ricavi.isEmpty()) {
             res.status(404);
+            System.out.println("Nessun ricavo trovato per questa macchinetta");
             return gson.toJson(new ErrorResponse("Nessun ricavo trovato per questa macchinetta"));
         }
         return gson.toJson(ricavi);

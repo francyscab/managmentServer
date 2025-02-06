@@ -42,6 +42,7 @@ public class DaoRicavoImpl implements DaoRicavo {
                 ricavi.add(extractRicavoFromResultSet(rs));
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
 

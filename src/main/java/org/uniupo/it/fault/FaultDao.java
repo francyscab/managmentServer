@@ -8,5 +8,5 @@ public interface FaultDao {
 
     List<Fault> getFaultsByMachine(String machineId, int idIstituto);
 
-    int markFaultsAsResolved(List<UUID> faultIds);
+    void markFaultsAsResolved(List<UUID> faultIds);
 }

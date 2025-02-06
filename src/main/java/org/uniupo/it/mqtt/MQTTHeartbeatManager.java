@@ -31,7 +31,7 @@ public class MQTTHeartbeatManager {
     private void setupMqttSubscription() {
         try {
             MQTTConnection.getInstance().subscribe(HEARTBEAT_TOPIC + "+/+/response",
-                    (topic, message) -> {
+                    (topic, _) -> {
                         System.out.println("Received heartbeat response from " + topic);
                         String[] parts = topic.split("/");
                         if (parts.length >= 4) {

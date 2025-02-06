@@ -13,6 +13,18 @@ public class ConsumablesStatus {
         this.consumables = consumables;
     }
 
+    public void setMachineId(String machineId) {
+        this.machineId = machineId;
+    }
+
+    public void setInstituteId(String instituteId) {
+        this.instituteId = instituteId;
+    }
+
+    public void setConsumables(List<Consumable> consumables) {
+        this.consumables = consumables;
+    }
+
     public String getMachineId() {
         return machineId;
     }

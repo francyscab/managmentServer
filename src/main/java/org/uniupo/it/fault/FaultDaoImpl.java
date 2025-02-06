@@ -81,7 +81,7 @@ public class FaultDaoImpl implements FaultDao {
     }
 
     @Override
-    public int markFaultsAsResolved(List<UUID> faultIds) {
+    public void markFaultsAsResolved(List<UUID> faultIds) {
         int totalResolved = 0;
 
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -105,7 +105,6 @@ public class FaultDaoImpl implements FaultDao {
 
                 conn.commit();
                 System.out.println("Total faults resolved: " + totalResolved);
-                return totalResolved;
 
             } catch (SQLException e) {
                 conn.rollback();

@@ -57,11 +57,6 @@ public class SQLQuery {
                 WHERE id_macchinetta = ? AND id_istituto = ?
                 """;
 
-        public static final String UPDATE_MACCHINA_STATUS = """
-                 UPDATE management_schema.macchinette 
-                SET stato_corrente = ?::management_schema.status_macchinetta 
-                WHERE id_macchinetta = ? AND id_istituto = ?
-                """;
         public static final String UPDATE_MACCHINA_ONLINE_STATUS = """
                  UPDATE management_schema.macchinette 
                 SET is_online = ?

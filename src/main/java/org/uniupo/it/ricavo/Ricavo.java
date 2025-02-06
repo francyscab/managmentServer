@@ -1,7 +1,7 @@
 package org.uniupo.it.ricavo;
 
-import java.sql.Timestamp;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 public class Ricavo {
     private int id_ricavo;
@@ -17,13 +17,6 @@ public class Ricavo {
         this.somma_ricavo = somma_ricavo;
         this.id_istituto = id_istituto;
         this.data_ricavo = data_ricavo;
-        this.raccolto_da = raccolto_da;
-    }
-
-    public Ricavo(String id_macchinetta,int id_istituto, BigDecimal somma_ricavo, String raccolto_da) {
-        this.id_macchinetta = id_macchinetta;
-        this.id_istituto = id_istituto;
-        this.somma_ricavo = somma_ricavo;
         this.raccolto_da = raccolto_da;
     }
 

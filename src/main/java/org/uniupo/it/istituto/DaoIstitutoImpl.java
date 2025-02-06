@@ -81,7 +81,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
                     conn.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -121,7 +121,7 @@ public class DaoIstitutoImpl implements DaoIstituto {
                     conn.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                System.out.println(e.getMessage());
             }
         }
     }

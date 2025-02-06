@@ -1,12 +1,9 @@
 package org.uniupo.it.istituto;
 
-import com.google.gson.Gson;
-import org.uniupo.it.Application;
 import org.uniupo.it.util.ErrorResponse;
 import org.uniupo.it.util.SuccessResponse;
 import spark.Route;
 
-import java.net.URLDecoder;
 import java.util.List;
 
 import static org.uniupo.it.Application.daoIstituto;

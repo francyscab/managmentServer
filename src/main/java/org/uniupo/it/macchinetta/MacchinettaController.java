@@ -1,4 +1,3 @@
-
 package org.uniupo.it.macchinetta;
 
 import org.uniupo.it.mqtt.MQTTConnection;
@@ -58,10 +57,11 @@ public class MacchinettaController {
                 return gson.toJson(new ErrorResponse("Parametri mancanti"));
             }
 
-            MQTTConnection.getInstance().publish(String.format(Topics.NEW_MACHINE_TOPIC, idIstituto, idMacchinetta), "newMachine");
 
             Macchinetta macchinetta = new Macchinetta(idMacchinetta, idIstituto, piano);
             daoMacchinetta.addMacchinetta(macchinetta);
+
+            MQTTConnection.getInstance().publish(String.format(Topics.NEW_MACHINE_TOPIC, idIstituto, idMacchinetta), "newMachine");
 
             res.status(201);
             return gson.toJson(new SuccessResponse("Macchinetta aggiunta con successo"));

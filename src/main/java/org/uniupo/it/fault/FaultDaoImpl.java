@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.uniupo.it.util.SQLQuery.Fault.INSERT_FAULT;
+import static org.uniupo.it.util.SQLQuery.Fault.UPDATE_MACHINE_FAULT_STATUS;
 
 public class FaultDaoImpl implements FaultDao {
 
@@ -22,7 +23,8 @@ public class FaultDaoImpl implements FaultDao {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            try (PreparedStatement ps = conn.prepareStatement(INSERT_FAULT)) {
+            try (PreparedStatement ps = conn.prepareStatement(INSERT_FAULT);
+                 PreparedStatement psUpdate = conn.prepareStatement(UPDATE_MACHINE_FAULT_STATUS)) {
                 for (FaultMessage fault : faults) {
                     ps.setString(1, fault.getMachineId());
                     ps.setInt(2, fault.getInstituteId());
@@ -31,9 +33,15 @@ public class FaultDaoImpl implements FaultDao {
                     ps.setString(5, fault.getFaultType().name());
                     ps.setObject(6, fault.getIdFault());
                     ps.addBatch();
+
+                    psUpdate.setString(1, fault.getMachineId());
+                    psUpdate.setInt(2, fault.getInstituteId());
+                    psUpdate.addBatch();
+
                 }
 
                 ps.executeBatch();
+                psUpdate.executeBatch();
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
@@ -82,38 +90,43 @@ public class FaultDaoImpl implements FaultDao {
 
     @Override
     public void markFaultsAsResolved(List<UUID> faultIds) {
-        int totalResolved = 0;
-
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            try (PreparedStatement ps = conn.prepareStatement(SQLQuery.Fault.MARK_FAULTS_AS_RESOLVED)) {
-                for (UUID faultId : faultIds) {
-                    System.out.println("UUID type: " + faultId.getClass().getName());
-                    ps.setObject(1, faultId, Types.OTHER);
-                    int affected = ps.executeUpdate();
-                    totalResolved += affected;
-
-                    System.out.println("Resolving fault with ID: " + faultId);
-                    if (affected > 0) {
-                        System.out.println("Successfully resolved fault: " + faultId);
+            try {
+                String machineId;
+                int instituteId;
+                try (PreparedStatement psGetMachine = conn.prepareStatement(SQLQuery.Fault.GET_MACHINE_FOR_FAULT)) {
+                    psGetMachine.setObject(1, faultIds.getFirst());
+                    ResultSet rs = psGetMachine.executeQuery();
+                    if (rs.next()) {
+                        machineId = rs.getString("id_macchinetta");
+                        instituteId = rs.getInt("id_istituto");
                     } else {
-                        System.out.println("No fault found with ID: " + faultId +
-                                " (Query executed but no rows affected)");
+                        throw new RuntimeException("Could not find machine info for fault");
                     }
                 }
 
+                try (PreparedStatement ps = conn.prepareStatement(SQLQuery.Fault.MARK_FAULTS_AS_RESOLVED)) {
+                    for (UUID faultId : faultIds) {
+                        ps.setObject(1, faultId, Types.OTHER);
+                        ps.executeUpdate();
+                    }
+                }
+
+                try (PreparedStatement psUpdate = conn.prepareStatement(SQLQuery.Fault.UPDATE_MACHINE_NO_FAULT)) {
+                    psUpdate.setString(1, machineId);
+                    psUpdate.setInt(2, instituteId);
+                    psUpdate.executeUpdate();
+                }
+
                 conn.commit();
-                System.out.println("Total faults resolved: " + totalResolved);
 
             } catch (SQLException e) {
                 conn.rollback();
-                System.err.println("Error executing fault resolution query: " + e.getMessage());
-                System.err.println("SQL State: " + e.getSQLState());
                 throw new RuntimeException("Error during fault resolution", e);
             }
         } catch (SQLException e) {
-            System.err.println("Database connection error: " + e.getMessage());
             throw new RuntimeException("Database connection error", e);
         }
     }

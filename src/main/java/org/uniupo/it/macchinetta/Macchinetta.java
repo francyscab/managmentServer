@@ -6,12 +6,14 @@ public class Macchinetta {
 
     private String piano;
     private boolean online;
+    private boolean guasto;
 
-    public Macchinetta(String id_macchinetta, int id_istituto, String piano, boolean online) {
+    public Macchinetta(String id_macchinetta, int id_istituto, String piano, boolean online, boolean guasto) {
         this.id_macchinetta = id_macchinetta;
         this.id_istituto = id_istituto;
         this.piano = piano;
         this.online = online;
+        this.guasto = guasto;
     }
 
     public Macchinetta(String idMacchinetta, int idIstituto, String piano) {
@@ -55,6 +57,14 @@ public class Macchinetta {
         this.online = online;
     }
 
+    public boolean isGuasto() {
+        return guasto;
+    }
+
+    public void setGuasto(boolean guasto) {
+        this.guasto = guasto;
+    }
+
     @Override
     public String toString() {
         return "Macchinetta{" +
@@ -62,6 +72,7 @@ public class Macchinetta {
                 ", id_istituto=" + id_istituto +
                 ", piano='" + piano + '\'' +
                 ", online=" + online +
+                ", guasto=" + guasto +
                 '}';
     }
 }

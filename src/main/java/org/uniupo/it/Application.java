@@ -119,11 +119,6 @@ public class Application {
             get(Path.Web.GET_TOTALE_RICAVI_BY_MACCHINETTA, RicavoController.getTotaleRicaviByMacchinetta);
             get(Path.Web.GET_TOTALE_RICAVI_BY_ISTITUTO, RicavoController.getTotaleRicaviByIstituto);
 
-            before("/svuota", (request, response) -> {
-                if ("GET".equalsIgnoreCase(request.requestMethod())) {
-                    AuthMiddleware.requireAdmin.handle(request, response);
-                }
-            });
 
             get(Path.Web.SVUOTA_RICAVI, RicavoController.svuotaRicavi);
         });

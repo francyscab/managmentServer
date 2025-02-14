@@ -108,7 +108,8 @@ public class DaoMacchinetteImpl implements DaoMacchinetta {
                 rs.getString("id_macchinetta"),
                 rs.getInt("id_istituto"),
                 rs.getString("piano"),
-                rs.getBoolean("is_online")
+                rs.getBoolean("is_online"),
+                rs.getBoolean("guasto")
         );
     }
 

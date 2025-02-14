@@ -58,10 +58,10 @@ public class SQLQuery {
                 """;
 
         public static final String UPDATE_MACCHINA_ONLINE_STATUS = """
-                 UPDATE management_schema.macchinette 
-                SET is_online = ?
-                WHERE id_macchinetta = ? AND id_istituto = ?
-                """;
+                  UPDATE management_schema.macchinette\s
+                 SET is_online = ?
+                 WHERE id_macchinetta = ? AND id_istituto = ?
+                \s""";
     }
 
     public static class Ricavo {
@@ -77,17 +77,17 @@ public class SQLQuery {
                 """;
 
         public static final String GET_TOTALE_RICAVI_BY_ISTITUTO = """
-                SELECT COALESCE(SUM(somma_ricavo), 0) as totale
-                FROM management_schema.ricavi 
-                WHERE id_istituto = ?
-                """;
+                 SELECT COALESCE(SUM(somma_ricavo), 0) as totale
+                 FROM management_schema.ricavi\s
+                 WHERE id_istituto = ?
+                \s""";
 
         public static final String GET_RICAVI_BY_ISTITUTO = """
-                SELECT * 
-                FROM management_schema.ricavi
-                WHERE id_istituto = ?
-                ORDER BY data_ricavo DESC
-                """;
+                 SELECT *\s
+                 FROM management_schema.ricavi
+                 WHERE id_istituto = ?
+                 ORDER BY data_ricavo DESC
+                \s""";
 
         public static final String ADD_RICAVO = """
                 INSERT INTO management_schema.ricavi
@@ -128,7 +128,11 @@ public class SQLQuery {
                  (id_macchinetta, id_istituto, descrizione, data_segnalazione, tipo_guasto, id_fault)
                  VALUES (?, ?, ?, ?, CAST(? as management_schema.tipo_guasto), ?)
                 \s""";
-
+        public static final String UPDATE_MACHINE_FAULT_STATUS = """
+                  UPDATE management_schema.macchinette\s
+                  SET guasto = true\s
+                  WHERE id_macchinetta = ? AND id_istituto = ?
+                \s""";
         public static final String GET_FAULTS_BY_MACHINE = """
                 SELECT * FROM management_schema.guasti
                 WHERE id_macchinetta = ?
@@ -141,6 +145,16 @@ public class SQLQuery {
                         "SET risolto = true " +
                         "WHERE id_fault::uuid = ?::uuid";
 
+        public static final String UPDATE_MACHINE_NO_FAULT = """
+                 UPDATE management_schema.macchinette\s
+                 SET guasto = false\s
+                 WHERE id_macchinetta = ?\s
+                 AND id_istituto = ?
+                \s""";
 
+
+        public static final String GET_MACHINE_FOR_FAULT = """
+                SELECT id_macchinetta, id_istituto FROM management_schema.guasti
+                WHERE id_fault = ?""";
     }
 }

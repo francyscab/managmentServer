@@ -23,6 +23,7 @@ public class DaoTransazioneImpl implements DaoTransazione {
             ps.setInt(6, transazione.getTransactionId());
             ps.executeUpdate();
         } catch (SQLException e) {
+            System.out.println("Errore nell'inserimento della transazione" + e.getMessage());
             throw new RuntimeException("Errore nell'inserimento della transazione", e);
         }
     }

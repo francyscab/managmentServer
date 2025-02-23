@@ -101,4 +101,12 @@ public class MQTTConnection {
             }
         }
     }
+
+    public void unsubscribe(String topic) {
+        try {
+            client.unsubscribe(topic);
+        } catch (MqttException e) {
+            throw new RuntimeException("Errore nella disconnessione dal topic MQTT", e);
+        }
+    }
 }

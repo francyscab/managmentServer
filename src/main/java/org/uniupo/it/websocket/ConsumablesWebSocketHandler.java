@@ -5,6 +5,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.uniupo.it.consumables.ConsumablesStatus;
 import org.uniupo.it.mqtt.ConsumablesMQTTManager;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConsumablesWebSocketHandler {
     private static final Map<String, Session> sessions = new ConcurrentHashMap<>();
     private static final Gson gson = new Gson();
-    private static final ConsumablesMQTTManager mqttManager = new ConsumablesMQTTManager();
+    private ConsumablesMQTTManager mqttManager;
 
     public static void broadcastUpdate(ConsumablesStatus status) {
         String sessionKey = getSessionKey(status.getMachineId(), status.getInstituteId());
@@ -53,7 +54,7 @@ public class ConsumablesWebSocketHandler {
             String instituteId = session.getUpgradeRequest().getParameterMap().get("instituteId").getFirst();
             System.out.println("Connected to machine " + machineId + " in institute " + instituteId);
 
-
+            this.mqttManager = new ConsumablesMQTTManager();
             String sessionKey = getSessionKey(machineId, instituteId);
             System.out.println("Session key: " + sessionKey);
 
@@ -80,10 +81,31 @@ public class ConsumablesWebSocketHandler {
         }
     }
 
+    @OnWebSocketError
+    public void onError(Session session, Throwable error) {
+        try {
+            String machineId = session.getUpgradeRequest().getParameterMap().get("machineId").getFirst();
+            String instituteId = session.getUpgradeRequest().getParameterMap().get("instituteId").getFirst();
+            String sessionKey = getSessionKey(machineId, instituteId);
+            System.err.println("WebSocket Error for session " + sessionKey + ": " + error.getMessage());
+
+            if (session.isOpen()) {
+                session.close(1011, "Error occurred: " + error.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling WebSocket error: " + e.getMessage());
+        }
+    }
+
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         String machineId = session.getUpgradeRequest().getParameterMap().get("machineId").getFirst();
         String instituteId = session.getUpgradeRequest().getParameterMap().get("instituteId").getFirst();
         sessions.remove(getSessionKey(machineId, instituteId));
+
+        if (this.mqttManager != null) {
+            this.mqttManager.disconnect();
+            this.mqttManager = null;
+        }
     }
 }

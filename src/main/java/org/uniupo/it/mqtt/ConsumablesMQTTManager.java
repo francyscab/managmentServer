@@ -47,6 +47,11 @@ public class ConsumablesMQTTManager {
         }
     }
 
+    public void disconnect() {
+        mqttConnection.unsubscribe(CONSUMABLES_RESPONSE_TOPIC);
+
+    }
+
     public void requestConsumablesStatus(String machineId, String instituteId) {
         System.out.println("Requesting consumables status for machine " + machineId);
         try {

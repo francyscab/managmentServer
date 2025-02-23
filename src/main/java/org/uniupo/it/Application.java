@@ -55,7 +55,7 @@ public class Application {
 
         secure(keystoreFile, keystorePassword, null, null);
         ConsumablesController.initializeWebSocket();
-        webSocketIdleTimeoutMillis(Integer.MAX_VALUE);
+        webSocketIdleTimeoutMillis(60000);
 
         before((req, res) -> System.out.println("Richiesta ricevuta: " + req.requestMethod() + " " + req.url()));
 
@@ -213,6 +213,7 @@ public class Application {
         try {
             MQTTConnection.getInstance().subscribe(Topics.REGISTER_TRANSACTION_TOPIC, (topic, message) -> {
                 String messageContent = new String(message.getPayload());
+                System.out.println("Messaggio ricevuto su " + topic + ": " + messageContent);
 
                 TransactionMessage transactionMsg = gson.fromJson(messageContent, TransactionMessage.class);
                 daoTransazione.addTransazione(transactionMsg);
